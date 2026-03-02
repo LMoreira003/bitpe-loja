@@ -27,7 +27,7 @@
 
 <body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
 
-    <!-- HEADER CHECKOUT (Minimalista pra não distrair) -->
+    <!-- HEADER CHECKOUT -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -55,13 +55,13 @@
                     Carrinho
                 </div>
                 <div class="w-12 h-px bg-gray-300"></div>
-                <div class="flex items-center text-brand">
+                <div class="flex items-center text-brand" id="step-entrega">
                     <span
                         class="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold mr-2">2</span>
                     Dados & Entrega
                 </div>
                 <div class="w-12 h-px bg-gray-300"></div>
-                <div class="flex items-center text-gray-400">
+                <div class="flex items-center text-gray-400" id="step-pagamento">
                     <span
                         class="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold mr-2">3</span>
                     Pagamento
@@ -126,7 +126,7 @@
                 <!-- ENDEREÇO DE ENTREGA -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 class="font-display font-bold text-lg uppercase tracking-wider mb-6 flex items-center">
-                        <i class="fas fa-truck text-brand mr-3"></i> Endereço de Entrega
+                        <i class="fas fa-map-marker-alt text-brand mr-3"></i> Endereço de Entrega
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="sm:col-span-2 flex gap-4">
@@ -170,7 +170,7 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Cidade
                                 *</label>
-                            <input type="text" id="cidade" placeholder="São Paulo" required
+                            <input type="text" id="cidade" placeholder="Goiânia" required
                                 class="w-full border border-gray-300 rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all">
                         </div>
                         <div>
@@ -187,7 +187,7 @@
                                 <option value="CE">CE</option>
                                 <option value="DF">DF</option>
                                 <option value="ES">ES</option>
-                                <option value="GO">GO</option>
+                                <option value="GO" selected>GO</option>
                                 <option value="MA">MA</option>
                                 <option value="MT">MT</option>
                                 <option value="MS">MS</option>
@@ -209,44 +209,18 @@
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <!-- FORMA DE PAGAMENTO -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 class="font-display font-bold text-lg uppercase tracking-wider mb-6 flex items-center">
-                        <i class="fas fa-credit-card text-brand mr-3"></i> Forma de Pagamento
-                    </h2>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                        <!-- PIX -->
-                        <label
-                            class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-brand transition-colors flex flex-col items-center gap-2 has-[:checked]:border-brand has-[:checked]:bg-brand/5">
-                            <input type="radio" name="pagamento" value="pix" class="hidden" checked>
-                            <i class="fas fa-qrcode text-2xl text-brand"></i>
-                            <span class="font-bold text-sm">PIX</span>
-                            <span class="text-[10px] text-green-600 font-bold">5% de desconto</span>
-                        </label>
-                        <!-- Cartão -->
-                        <label
-                            class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-brand transition-colors flex flex-col items-center gap-2 has-[:checked]:border-brand has-[:checked]:bg-brand/5">
-                            <input type="radio" name="pagamento" value="cartao" class="hidden">
-                            <i class="fas fa-credit-card text-2xl text-gray-600"></i>
-                            <span class="font-bold text-sm">Cartão</span>
-                            <span class="text-[10px] text-gray-500 font-bold">Até 12x</span>
-                        </label>
-                        <!-- Boleto -->
-                        <label
-                            class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-brand transition-colors flex flex-col items-center gap-2 has-[:checked]:border-brand has-[:checked]:bg-brand/5">
-                            <input type="radio" name="pagamento" value="boleto" class="hidden">
-                            <i class="fas fa-barcode text-2xl text-gray-600"></i>
-                            <span class="font-bold text-sm">Boleto</span>
-                            <span class="text-[10px] text-gray-500 font-bold">Vence em 3 dias</span>
-                        </label>
+                    <!-- OPÇÕES DE FRETE (aparece após digitar CEP) -->
+                    <div id="opcoes-frete" class="mt-6 hidden">
+                        <h3 class="font-bold text-sm uppercase tracking-wider text-gray-500 mb-3 flex items-center">
+                            <i class="fas fa-truck mr-2 text-brand"></i> Escolha o Frete
+                        </h3>
+                        <div id="lista-fretes" class="space-y-3">
+                            <!-- Preenchido pelo JS após consultar CEP -->
+                        </div>
                     </div>
-
-                    <p class="text-xs text-gray-500 text-center"><i class="fas fa-lock mr-1"></i> Seus dados serão
-                        processados com segurança pelo Mercado Pago.</p>
                 </div>
+
             </div>
 
             <!-- COLUNA DIREITA: RESUMO DO PEDIDO (Sticky) -->
@@ -264,11 +238,7 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500">Frete</span>
-                            <span class="font-bold text-green-600" id="checkout-frete">A calcular</span>
-                        </div>
-                        <div id="linha-desconto-pix" class="flex justify-between text-sm">
-                            <span class="text-gray-500">Desconto PIX (5%)</span>
-                            <span class="font-bold text-green-600" id="checkout-desconto">- R$ 0,00</span>
+                            <span class="font-bold text-gray-400" id="checkout-frete">Informe o CEP</span>
                         </div>
                     </div>
 
@@ -278,14 +248,19 @@
                             <span class="font-display font-bold text-3xl text-gray-900" id="checkout-total">R$
                                 0,00</span>
                         </div>
-                        <p class="text-xs text-gray-400 text-right mt-1">ou até 12x de <span id="checkout-parcela">R$
-                                0,00</span></p>
+                        <p class="text-xs text-gray-400 text-right mt-1">Parcele em até 12x no cartão via Mercado Pago
+                        </p>
                     </div>
 
-                    <button onclick="finalizarPedido()"
-                        class="w-full bg-brand text-white font-bold h-16 uppercase tracking-wider hover:bg-brand-dark transition-colors shadow-lg flex items-center justify-center text-lg rounded-lg">
-                        <i class="fas fa-lock mr-3"></i> FINALIZAR PEDIDO
+                    <!-- BOTÃO MERCADO PAGO -->
+                    <button onclick="redirecionarParaMercadoPago()" id="btn-pagar"
+                        class="w-full bg-[#009ee3] text-white font-bold h-16 uppercase tracking-wider hover:bg-[#007bb5] transition-colors shadow-lg flex items-center justify-center text-lg rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                        <i class="fas fa-lock mr-3"></i> FINALIZAR E PAGAR
                     </button>
+                    <p id="btn-pagar-aviso" class="text-xs text-center text-orange-500 font-bold mt-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Preencha seus dados e escolha o frete primeiro
+                    </p>
 
                     <div class="mt-6 flex items-center justify-center gap-4 text-gray-300">
                         <i class="fab fa-cc-visa text-2xl"></i>
@@ -293,6 +268,12 @@
                         <i class="fab fa-pix text-2xl"></i>
                         <i class="fas fa-barcode text-xl"></i>
                     </div>
+
+                    <p class="text-[10px] text-gray-400 text-center mt-4">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        Pagamento processado com segurança pelo Mercado Pago.
+                        Aceitamos PIX, Cartão de Crédito (até 12x), Boleto e mais.
+                    </p>
                 </div>
             </div>
         </div>
@@ -306,9 +287,11 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="js/db.js?v=5"></script>
+    <script src="js/db.js?v=6"></script>
     <script>
-        let _subtotalCheckout = 0; // Global pra recalcular quando trocar pagamento
+        let _subtotalCheckout = 0;
+        let _freteSelecionado = 0;
+        let _freteEscolhido = false;
 
         // Renderizar Resumo do Checkout
         document.addEventListener('DOMContentLoaded', () => {
@@ -323,7 +306,7 @@
             let htmlProdutos = '';
 
             listaCarrinho.forEach(item => {
-                const prod = bancoDeProdutos.find(p => p.id === item.produtoId);
+                const prod = bancoDeProdutos.find(p => String(p.id) === String(item.produtoId));
                 if (prod) {
                     _subtotalCheckout += prod.precoAtual * item.qtd;
 
@@ -353,29 +336,46 @@
             document.getElementById('checkout-qtd-items').innerText = listaCarrinho.length;
             document.getElementById('checkout-subtotal').innerText = `R$ ${_subtotalCheckout.toFixed(2).replace('.', ',')}`;
 
-            recalcularResumo();
+            recalcularTotal();
         });
 
-        // FUNÇÃO CENTRAL: Recalcula resumo baseado na forma de pagamento selecionada
-        function recalcularResumo() {
-            const metodo = document.querySelector('input[name="pagamento"]:checked').value;
-            const linhaDesconto = document.getElementById('linha-desconto-pix');
-            let desconto = 0;
-
-            if (metodo === 'pix') {
-                desconto = _subtotalCheckout * 0.05;
-                linhaDesconto.classList.remove('hidden');
-            } else {
-                linhaDesconto.classList.add('hidden');
-            }
-
-            const total = _subtotalCheckout - desconto;
-            const parcela = _subtotalCheckout / 12; // Parcela sem desconto PIX
-
-            document.getElementById('checkout-desconto').innerText = `- R$ ${desconto.toFixed(2).replace('.', ',')}`;
+        // Recalcula o total com frete
+        function recalcularTotal() {
+            const total = _subtotalCheckout + _freteSelecionado;
             document.getElementById('checkout-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('checkout-parcela').innerText = `R$ ${parcela.toFixed(2).replace('.', ',')}`;
+            verificarBotaoPagar();
         }
+
+        // Verifica se pode habilitar o botão de pagar
+        function verificarBotaoPagar() {
+            const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade'];
+            let todosPreenchidos = true;
+
+            camposObrigatorios.forEach(id => {
+                const campo = document.getElementById(id);
+                if (!campo || !campo.value.trim()) todosPreenchidos = false;
+            });
+
+            const estado = document.getElementById('estado');
+            if (!estado || !estado.value) todosPreenchidos = false;
+
+            const btnPagar = document.getElementById('btn-pagar');
+            const aviso = document.getElementById('btn-pagar-aviso');
+
+            if (todosPreenchidos && _freteEscolhido) {
+                btnPagar.disabled = false;
+                aviso.classList.add('hidden');
+            } else {
+                btnPagar.disabled = true;
+                aviso.classList.remove('hidden');
+            }
+        }
+
+        // Monitora todos os campos para habilitar/desabilitar botão
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', verificarBotaoPagar);
+            el.addEventListener('change', verificarBotaoPagar);
+        });
 
         function removerDoCheckout(idRemover) {
             let lista = JSON.parse(localStorage.getItem('bitpe_carrinho')) || [];
@@ -384,19 +384,18 @@
             window.location.reload();
         }
 
-        // Busca de CEP usando API grátis do ViaCEP
+        // Busca de CEP + cálculo de frete
         function buscarCEP() {
             const cepInput = document.getElementById('cep');
             const cep = cepInput.value.replace(/\D/g, '');
 
-            // Se CEP inválido, colore a borda em vez de alert
             if (cep.length !== 8) {
                 cepInput.classList.add('border-red-400', 'bg-red-50');
                 mostrarFeedbackInline('cep', 'Digite um CEP válido com 8 números.', 'error');
                 return;
             }
             cepInput.classList.remove('border-red-400', 'bg-red-50');
-            mostrarFeedbackInline('cep', 'Buscando...', 'info');
+            mostrarFeedbackInline('cep', 'Buscando endereço...', 'info');
 
             fetch(`https://viacep.com.br/ws/${cep}/json/`)
                 .then(res => res.json())
@@ -412,42 +411,84 @@
                     document.getElementById('cidade').value = dados.localidade || '';
                     document.getElementById('estado').value = dados.uf || '';
 
-                    // Simula frete calculado
-                    document.getElementById('checkout-frete').innerText = 'R$ 19,90';
-                    document.getElementById('checkout-frete').classList.remove('text-green-600');
-                    document.getElementById('checkout-frete').classList.add('text-gray-900');
-
                     mostrarFeedbackInline('cep', `Endereço encontrado: ${dados.localidade}/${dados.uf}`, 'success');
                     document.getElementById('numero').focus();
+
+                    // Calcular frete (por enquanto simulado - será substituído pelo Melhor Envio)
+                    calcularFrete(cep);
                 })
                 .catch(() => {
                     mostrarFeedbackInline('cep', 'Erro de conexão. Tente novamente.', 'error');
                 });
         }
 
-        // Helper: mostra feedback inline abaixo do campo do CEP sem janela
-        function mostrarFeedbackInline(campoId, mensagem, tipo) {
-            let feedbackEl = document.getElementById('feedback-' + campoId);
-            if (!feedbackEl) {
-                feedbackEl = document.createElement('p');
-                feedbackEl.id = 'feedback-' + campoId;
-                feedbackEl.className = 'text-xs font-bold mt-1';
-                document.getElementById(campoId).parentElement.appendChild(feedbackEl);
-            }
-            feedbackEl.className = 'text-xs font-bold mt-1 transition-all'; // Reseta classe de cor
-            if (tipo === 'error') feedbackEl.classList.add('text-red-500');
-            else if (tipo === 'success') feedbackEl.classList.add('text-green-600');
-            else feedbackEl.classList.add('text-gray-500');
-
-            feedbackEl.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : tipo === 'success' ? 'fa-check-circle' : 'fa-spinner fa-spin'} mr-1"></i> ${mensagem}`;
-
-            // Se sucesso ou info, desaparece depois de 5 seg
-            if (tipo !== 'error') {
-                setTimeout(() => { if (feedbackEl) feedbackEl.remove(); }, 5000);
-            }
+        // Calcula frete via API serverless (Melhor Envio)
+        function calcularFrete(cep) {
+            const opcoesFrete = document.getElementById('opcoes-frete');
+            const listaFretes = document.getElementById('lista-fretes');
+            opcoesFrete.classList.remove('hidden');
+            listaFretes.innerHTML = '<div class="text-center py-6 text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p class="text-sm font-bold">Calculando frete...</p></div>';
+            fetch('/api/calcular-frete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cepDestino: cep })
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    var fretes = data.opcoes || [];
+                    if (fretes.length === 0) { listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold">Nenhuma opção de frete para este CEP.</p>'; return; }
+                    var htmlFretes = '';
+                    fretes.forEach(function (frete, i) {
+                        var sel = i === 0 ? 'border-brand bg-purple-50' : 'border-gray-200';
+                        var iconCls = i === 0 ? 'text-brand' : 'text-gray-400';
+                        var chk = i === 0 ? 'checked' : '';
+                        htmlFretes += '<label class="border-2 ' + sel + ' rounded-lg p-4 cursor-pointer hover:border-brand transition-colors flex items-center gap-4">' +
+                            '<input type="radio" name="frete" value="' + frete.nome + '" data-preco="' + frete.preco + '" ' + chk + ' onchange="selecionarFrete(' + frete.preco + ')" class="hidden">' +
+                            '<i class="fas ' + (frete.icone || 'fa-box') + ' text-xl ' + iconCls + '"></i>' +
+                            '<div class="flex-grow"><span class="font-bold text-sm">' + frete.nome + '</span>' +
+                            '<span class="text-xs text-gray-500 block">' + frete.empresa + ' — ' + frete.prazo + ' dias úteis</span></div>' +
+                            '<span class="font-display font-bold text-lg">R$ ' + frete.preco.toFixed(2).replace('.', ',') + '</span></label>';
+                    });
+                    if (data.simulado) { htmlFretes += '<p class="text-xs text-orange-500 mt-2"><i class="fas fa-info-circle mr-1"></i> Valores estimados.</p>'; }
+                    listaFretes.innerHTML = htmlFretes;
+                    selecionarFrete(fretes[0].preco);
+                })
+                .catch(function () {
+                    listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold">Erro ao calcular frete. Tente novamente.</p>';
+                });
         }
 
-        function finalizarPedido() {
+        function selecionarFrete(preco) {
+            _freteSelecionado = preco;
+            _freteEscolhido = true;
+
+            document.getElementById('checkout-frete').innerText = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+            document.getElementById('checkout-frete').classList.remove('text-gray-400');
+            document.getElementById('checkout-frete').classList.add('text-gray-900');
+
+            // Visual: highlight no selecionado
+            document.querySelectorAll('input[name="frete"]').forEach(r => {
+                const label = r.closest('label');
+                const icon = label.querySelector('i');
+                if (r.checked) {
+                    label.classList.add('border-brand', 'bg-brand/5');
+                    label.classList.remove('border-gray-200');
+                    icon.classList.add('text-brand');
+                    icon.classList.remove('text-gray-400');
+                } else {
+                    label.classList.remove('border-brand', 'bg-brand/5');
+                    label.classList.add('border-gray-200');
+                    icon.classList.remove('text-brand');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+
+            recalcularTotal();
+        }
+
+        // REDIRECIONA PARA O MERCADO PAGO
+        // (Será conectado à API real - por enquanto salva dados e mostra confirmação)
+        function redirecionarParaMercadoPago() {
             const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'];
             let camposVazios = [];
 
@@ -462,27 +503,17 @@
             });
 
             if (camposVazios.length > 0) {
-                // Scroll suave pro primeiro campo vazio em vez de alert
                 const primeiroCampo = document.getElementById(camposVazios[0]);
                 primeiroCampo.focus();
                 primeiroCampo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                // Mostra feedback inline no topo do formulário
-                let avisoTopo = document.getElementById('aviso-formulario');
-                if (!avisoTopo) {
-                    avisoTopo = document.createElement('div');
-                    avisoTopo.id = 'aviso-formulario';
-                    document.querySelector('main').insertBefore(avisoTopo, document.querySelector('main').firstChild);
-                }
-                avisoTopo.className = 'bg-red-50 border border-red-200 text-red-600 rounded-lg p-4 mb-4 text-sm font-medium flex items-center';
-                avisoTopo.innerHTML = `<i class="fas fa-exclamation-triangle mr-3 text-lg"></i> Preencha todos os campos obrigatórios (*) destacados em vermelho.`;
-                avisoTopo.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
 
-            // Remove aviso se existir
-            const avisoExistente = document.getElementById('aviso-formulario');
-            if (avisoExistente) avisoExistente.remove();
+            if (!_freteEscolhido) {
+                document.getElementById('cep').focus();
+                document.getElementById('cep').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             const dadosPedido = {
                 cliente: {
@@ -500,30 +531,40 @@
                     cidade: document.getElementById('cidade').value,
                     estado: document.getElementById('estado').value,
                 },
-                pagamento: document.querySelector('input[name="pagamento"]:checked').value,
+                frete: {
+                    tipo: document.querySelector('input[name="frete"]:checked')?.value || 'pac',
+                    valor: _freteSelecionado
+                },
+                subtotal: _subtotalCheckout,
+                total: _subtotalCheckout + _freteSelecionado,
                 itens: JSON.parse(localStorage.getItem('bitpe_carrinho')) || []
             };
 
             localStorage.setItem('bitpe_ultimo_pedido', JSON.stringify(dadosPedido));
 
-            // AQUI NO FUTURO: fetch() ao MercadoPago / Stripe
+            // TODO: Aqui será a chamada para API /api/criar-pagamento que cria o link do Mercado Pago
+            // Por enquanto, simula o fluxo completo:
             localStorage.removeItem('bitpe_carrinho');
 
-            // Tela de sucesso
             document.querySelector('main').innerHTML = `
                 <div class="max-w-lg mx-auto py-20 text-center">
                     <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <i class="fas fa-check text-green-600 text-4xl"></i>
                     </div>
                     <h1 class="text-3xl font-display font-bold uppercase text-gray-900 mb-4">Pedido Confirmado!</h1>
-                    <p class="text-gray-500 mb-2">Obrigado, <strong>${dadosPedido.cliente.nome.split(' ')[0]}</strong>! Seu pedido foi recebido com sucesso.</p>
-                    <p class="text-gray-500 mb-8">Você receberá a confirmação no e-mail <strong>${dadosPedido.cliente.email}</strong></p>
+                    <p class="text-gray-500 mb-2">Obrigado, <strong>${dadosPedido.cliente.nome.split(' ')[0]}</strong>! Seu pedido foi recebido.</p>
+                    <p class="text-gray-500 mb-8">Confirmação enviada para <strong>${dadosPedido.cliente.email}</strong></p>
                     
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-left">
                         <h3 class="font-bold text-sm uppercase tracking-wider mb-3 text-gray-500">Dados do Pedido</h3>
-                        <p class="text-sm text-gray-700"><strong>Pagamento:</strong> ${dadosPedido.pagamento === 'pix' ? 'PIX (5% de desconto)' : dadosPedido.pagamento === 'cartao' ? 'Cartão de Crédito' : 'Boleto Bancário'}</p>
-                        <p class="text-sm text-gray-700 mt-1"><strong>Entrega em:</strong> ${dadosPedido.endereco.rua}, ${dadosPedido.endereco.numero} ${dadosPedido.endereco.complemento ? '- ' + dadosPedido.endereco.complemento : ''}</p>
+                        <p class="text-sm text-gray-700"><strong>Frete:</strong> ${dadosPedido.frete.tipo.toUpperCase()} — R$ ${dadosPedido.frete.valor.toFixed(2).replace('.', ',')}</p>
+                        <p class="text-sm text-gray-700 mt-1"><strong>Total:</strong> R$ ${dadosPedido.total.toFixed(2).replace('.', ',')}</p>
+                        <p class="text-sm text-gray-700 mt-1"><strong>Entrega:</strong> ${dadosPedido.endereco.rua}, ${dadosPedido.endereco.numero} ${dadosPedido.endereco.complemento ? '- ' + dadosPedido.endereco.complemento : ''}</p>
                         <p class="text-sm text-gray-700">${dadosPedido.endereco.bairro} - ${dadosPedido.endereco.cidade}/${dadosPedido.endereco.estado}</p>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                        <p class="text-sm text-blue-700"><i class="fas fa-info-circle mr-2"></i> <strong>Em breve:</strong> O pagamento será processado pelo Mercado Pago com PIX, Cartão ou Boleto.</p>
                     </div>
 
                     <a href="index.html" class="inline-block bg-brand text-white font-bold py-4 px-10 rounded-lg uppercase tracking-wider hover:bg-brand-dark transition-colors shadow-lg">
@@ -533,24 +574,26 @@
             `;
         }
 
-        // Highlight visual no radio de pagamento + recalcula desconto
-        document.querySelectorAll('input[name="pagamento"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                document.querySelectorAll('input[name="pagamento"]').forEach(r => {
-                    r.closest('label').classList.remove('border-brand', 'bg-purple-50');
-                    r.closest('label').classList.add('border-gray-200');
-                });
-                radio.closest('label').classList.add('border-brand', 'bg-purple-50');
-                radio.closest('label').classList.remove('border-gray-200');
-
-                // RECALCULA O RESUMO (desconto PIX some se trocar)
-                recalcularResumo();
-            });
-            if (radio.checked) {
-                radio.closest('label').classList.add('border-brand', 'bg-purple-50');
-                radio.closest('label').classList.remove('border-gray-200');
+        // Helper: mostra feedback inline
+        function mostrarFeedbackInline(campoId, mensagem, tipo) {
+            let feedbackEl = document.getElementById('feedback-' + campoId);
+            if (!feedbackEl) {
+                feedbackEl = document.createElement('p');
+                feedbackEl.id = 'feedback-' + campoId;
+                feedbackEl.className = 'text-xs font-bold mt-1';
+                document.getElementById(campoId).parentElement.appendChild(feedbackEl);
             }
-        });
+            feedbackEl.className = 'text-xs font-bold mt-1 transition-all';
+            if (tipo === 'error') feedbackEl.classList.add('text-red-500');
+            else if (tipo === 'success') feedbackEl.classList.add('text-green-600');
+            else feedbackEl.classList.add('text-gray-500');
+
+            feedbackEl.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : tipo === 'success' ? 'fa-check-circle' : 'fa-spinner fa-spin'} mr-1"></i> ${mensagem}`;
+
+            if (tipo !== 'error') {
+                setTimeout(() => { if (feedbackEl) feedbackEl.remove(); }, 5000);
+            }
+        }
     </script>
 </body>
 
