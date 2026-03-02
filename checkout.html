@@ -417,8 +417,9 @@
                     // Calcular frete (por enquanto simulado - será substituído pelo Melhor Envio)
                     calcularFrete(cep);
                 })
-                .catch(() => {
-                    mostrarFeedbackInline('cep', 'Erro de conexão. Tente novamente.', 'error');
+                .catch(e => {
+                    console.error('Erro buscarCEP:', e);
+                    mostrarFeedbackInline('cep', 'Erro: ' + e.message, 'error');
                 });
         }
 
