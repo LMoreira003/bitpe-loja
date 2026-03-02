@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             bannerHtml += `
-                <div class="swiper-slide relative">
-                    <a href="${banner.link}" class="w-full h-full block">
+                <div class="swiper-slide relative overflow-hidden">
+                    <a href="${banner.link}" class="w-full h-full block overflow-hidden">
                         ${imgDesktop}
                         ${imgMobile}
                         <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: ${overlayOpacity}"></div>
