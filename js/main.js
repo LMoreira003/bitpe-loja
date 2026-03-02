@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Tratamento pra imagem mobile se existir
             let mobileClass = banner.imagemMobile ? 'hidden md:block' : '';
-            let imgDesktop = `<img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover select-none ${mobileClass}" onerror="this.onerror=null; this.src='https://placehold.co/1920x800/eaeaea/999?text=Banner+Aqui';">`;
+            let imgDesktop = `<img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-contain md:object-cover select-none ${mobileClass}" onerror="this.onerror=null; this.src='https://placehold.co/1920x800/eaeaea/999?text=Banner+Aqui';">`;
 
             let imgMobile = '';
             if (banner.imagemMobile) {
