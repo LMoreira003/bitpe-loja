@@ -92,18 +92,34 @@ const bancoDeProdutos = [
 const bancoDeBanners = [
     {
         id: "1",
-        imagem: "assets/img/banners/banner1.jpg",
+        imagem: "assets/img/banners/banner1.png",
         imagemMobile: "",
         link: "produtos.html",
         titulo: "CONFORTO SEM LIMITES",
-        corEscuraOverlay: 0.2
+        corEscuraOverlay: 0
     },
     {
         id: "2",
-        imagem: "assets/img/banners/banner2.jpg",
+        imagem: "assets/img/banners/banner2.png",
         imagemMobile: "",
         link: "produtos.html",
         titulo: "Novos Babuches",
-        corEscuraOverlay: 0.2
+        corEscuraOverlay: 0
+    },
+    {
+        id: "3",
+        imagem: "assets/img/banners/banner3.png",
+        imagemMobile: "",
+        link: "produtos.html",
+        titulo: "Coleção Especial",
+        corEscuraOverlay: 0
+    },
+    {
+        id: "4",
+        imagem: "assets/img/banners/banner4.png",
+        imagemMobile: "",
+        link: "produtos.html",
+        titulo: "Promoções",
+        corEscuraOverlay: 0
     }
 ];

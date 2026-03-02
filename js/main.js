@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Tratamento pra imagem mobile se existir
             let mobileClass = banner.imagemMobile ? 'hidden md:block' : '';
-            let imgDesktop = `<img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-contain md:object-cover select-none ${mobileClass}" onerror="this.onerror=null; this.src='https://placehold.co/1920x800/eaeaea/999?text=Banner+Aqui';">`;
+            let imgDesktop = `<img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover select-none scale-[1.15] md:scale-100 ${mobileClass}" onerror="this.onerror=null; this.src='https://placehold.co/1920x800/eaeaea/999?text=Banner+Aqui';">`;
 
             let imgMobile = '';
             if (banner.imagemMobile) {
@@ -491,8 +491,8 @@ function iniciarCarrinhoLateral() {
         <!-- SOMBRA PRETA DO FUNDO -->
         <div id="carrinho-overlay" onclick="fecharCarrinho()" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden transition-opacity opacity-0 duration-300"></div>
         
-        <!-- A GAVETA LATERAL BRANCA -->
-        <div id="carrinho-lateral" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[70] shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- A GAVETA LATERAL BRANCA (sem transition no início pra evitar flash) -->
+        <div id="carrinho-lateral" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[70] shadow-2xl transform translate-x-full flex flex-col" style="visibility: hidden;">
             
             <!-- CABEÇALHO DO CARRINHO -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200">
@@ -542,6 +542,15 @@ function iniciarCarrinhoLateral() {
 
     // 3. Lê o banco de dados do navegador caso o cliente tenha fechado o site e voltado
     atualizarEVisibilizarCarrinhoHTML();
+
+    // 4. Habilita a transition e visibilidade DEPOIS do DOM estabilizar (evita flash no load)
+    setTimeout(() => {
+        const carrinho = document.getElementById('carrinho-lateral');
+        if (carrinho) {
+            carrinho.style.visibility = 'visible';
+            carrinho.classList.add('transition-transform', 'duration-300');
+        }
+    }, 200);
 }
 
 // Global no window para o HTML achar
