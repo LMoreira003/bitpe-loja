@@ -139,7 +139,7 @@ function renderizarPaginaDeDetalhes(idRequisitado) {
     if (typeof bancoDeProdutos === 'undefined') return;
 
     // Acha o produto certo baseando-se no ID (ex: 1 = Homem Aranha)
-    const produto = bancoDeProdutos.find(p => p.id === idRequisitado);
+    const produto = bancoDeProdutos.find(p => String(p.id) === String(idRequisitado));
 
     // Se digitou ID errado na barra (ex ?id=999) manda pros produtos
     if (!produto) {
@@ -571,7 +571,7 @@ window.fecharCarrinho = function () {
 window.adicionarItemAoCarrinho = function (idProduto, diretoProPagamento) {
     if (typeof bancoDeProdutos === 'undefined') return;
 
-    const produtoEncontrado = bancoDeProdutos.find(p => p.id === idProduto);
+    const produtoEncontrado = bancoDeProdutos.find(p => String(p.id) === String(idProduto));
     if (!produtoEncontrado) return;
 
     // VALIDAÇÃO OBRIGATÓRIA: Se não escolheu tamanho, TRAVA
@@ -652,7 +652,7 @@ function atualizarEVisibilizarCarrinhoHTML() {
 
     listaCarrinhoAtual.forEach(itemCarregado => {
         // Busca info usando ID que está salvo
-        const produtoBase = bancoDeProdutos.find(p => p.id === itemCarregado.produtoId);
+        const produtoBase = bancoDeProdutos.find(p => String(p.id) === String(itemCarregado.produtoId));
         if (produtoBase) {
             totalAcumulado += produtoBase.precoAtual * itemCarregado.qtd;
 
