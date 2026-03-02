@@ -92,7 +92,7 @@ const bancoDeProdutos = [
 const bancoDeBanners = [
     {
         id: "1",
-        imagem: "assets/img/banners/IMG-20260302-WA0027.jpg",
+        imagem: "assets/img/banners/banner1.jpg",
         imagemMobile: "",
         link: "produtos.html",
         titulo: "CONFORTO SEM LIMITES",
@@ -100,7 +100,7 @@ const bancoDeBanners = [
     },
     {
         id: "2",
-        imagem: "assets/img/banners/IMG-20260302-WA0028.jpg",
+        imagem: "assets/img/banners/banner2.jpg",
         imagemMobile: "",
         link: "produtos.html",
         titulo: "Novos Babuches",
