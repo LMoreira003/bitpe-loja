@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto | Bitpe</title>
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS para galeria -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <script>
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            let errorMsg = "JS Error: " + msg + " in " + url + " line " + lineNo + ":" + columnNo;
+            document.body.innerHTML = "<div style='color:red; padding:50px; font-size:24px; font-family:sans-serif'><h1>Erro Detectado:</h1><p>" + errorMsg + "</p></div>";
+            return false;
+        };
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#7c3aed',
+                            dark: '#5b21b6',
+                            accent: '#facc15',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Escondendo a barra de rolagem dos thumbnails para ficar limpo */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Seleção de miniatura ativa */
+        .thumb-active {
+            border-color: #7c3aed !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-white text-gray-900 font-sans flex flex-col min-h-screen">
+
+    <!-- HEADER SIMPLIFICADO -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center">
+                    <img src="logo.png" alt="Bitpe" class="h-10">
+                </a>
+                <div class="flex items-center space-x-6">
+                    <button class="text-gray-700 hover:text-brand relative">
+                        <i class="fas fa-shopping-bag text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BREADCRUMBS -->
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-500 w-full" id="breadcrumb-container">
+        <!-- Renderizado dinamicamente -->
+        <a href="index.html" class="hover:text-brand">Início</a> <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Carregando...</span>
+    </nav>
+
+    <!-- CONTAINER PRINCIPAL DO PRODUTO -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full" id="produto-container">
+
+        <!-- O MAIN.JS VAI INJETAR O HTML AQUI! -->
+        <div class="flex items-center justify-center p-20 w-full text-center">
+            <div class="text-gray-400">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                <h2 class="text-xl font-bold">Buscando produto no estoque...</h2>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER SIMPLIFICADO -->
+    <footer class="bg-black text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm">&copy; 2024 Bitpe Calçados.</p>
+        </div>
+    </footer>
+
+    <!-- Bibliotecas Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Scripts da Base de Dados -->
+    <script src="js/db.js?v=5"></script>
+    <script src="js/main.js?v=5"></script>
+
+    <!-- Chamada específica para essa página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {             // Pega o ID que veio no link da vitrine (ex: produto-detalhe.html?id=1)
+            const urlParams = new URLSearchParams(window.location.search);
+            const produtoId = urlParams.get('id');
+            // Se tiver ID abre a pagina, senão manda ele de volta pro catálogo
+            if (produtoId) {
+                renderizarPaginaDeDetalhes(produtoId);
+            } else {
+                window.location.href = 'produtos.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

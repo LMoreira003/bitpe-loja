@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitpe | Todos os Produtos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#7c3aed',
+                            dark: '#5b21b6',
+                            accent: '#facc15',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-display {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-img {
+            transition: transform 0.3s ease;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes slideUp {
+
+            0%,
+            20% {
+                transform: translateY(0);
+            }
+
+            33%,
+            53% {
+                transform: translateY(-33.333%);
+            }
+
+            66%,
+            86% {
+                transform: translateY(-66.666%);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .text-slider {
+            animation: slideUp 9s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 overflow-x-hidden">
+
+    <!-- BARRA DE ANÚNCIO -->
+    <div class="bg-brand-accent text-gray-900 border-b border-yellow-400 overflow-hidden h-10 relative">
+        <div class="flex flex-col text-slider w-full absolute top-0 left-0">
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>🎟️ GANHE 10% OFF NA PRIMEIRA COMPRA</span>
+            </div>
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>💳 PARCELAMOS EM ATÉ 10X SEM JUROS NO CARTÃO</span>
+            </div>
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>✨ É UM PRAZER TER VOCÊ AQUI!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center md:hidden">
+                    <button class="text-gray-900 hover:text-brand focus:outline-none"><i
+                            class="fas fa-bars text-2xl"></i></button>
+                </div>
+                <div class="flex-shrink-0 flex items-center space-x-2">
+                    <a href="index.html">
+                        <img src="logo.png" alt="Bitpe Logo" class="h-10 md:h-12 py-1">
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-8 font-semibold text-sm tracking-wide h-full items-center">
+                    <a href="produtos.html" class="text-gray-900 hover:text-brand transition-colors">MULHER</a>
+                    <a href="produtos.html" class="text-gray-900 hover:text-brand transition-colors">HOMEM</a>
+                    <a href="produtos.html"
+                        class="text-brand font-bold border-b-2 border-brand transition-colors">INFANTIL</a>
+                    <a href="produtos.html" class="text-gray-900 hover:text-brand transition-colors">BITPINS</a>
+                    <a href="produtos.html" class="text-red-500 hover:text-red-700 transition-colors">OFERTAS</a>
+                </nav>
+                <div class="flex items-center space-x-6">
+                    <button onclick="window.abrirCarrinho && window.abrirCarrinho()"
+                        class="text-gray-700 hover:text-brand relative">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BREADCRUMB -->
+    <div class="bg-white border-b border-gray-200 py-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex text-sm text-gray-500 whitespace-nowrap overflow-x-auto no-scrollbar">
+                <a href="index.html" class="hover:text-brand transition-colors">Home</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-900 font-semibold">Todos os Calçados</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- CABEÇALHO DA CATEGORIA -->
+    <div class="bg-white py-10 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold font-display mb-4">TODOS OS CALÇADOS</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">Conforto sem limites para todos os momentos do seu dia. Navegue
+                por nossa coleção completa de babuches, sandálias e plataformas.</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- BARRA DE FERRAMENTAS -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-200 gap-4">
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <button id="btn-filtros-mobile"
+                    class="md:hidden flex-1 bg-gray-100 py-2 px-4 rounded font-semibold text-sm flex items-center justify-center space-x-2">
+                    <i class="fas fa-filter"></i> <span>Filtros</span>
+                </button>
+                <span id="contagem-produtos" class="hidden md:inline text-gray-500 font-semibold">Carregando...</span>
+            </div>
+
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                <span class="text-sm font-semibold text-gray-700">ORDENAR POR:</span>
+                <select id="select-ordenar"
+                    class="bg-transparent border-b-2 border-gray-300 py-1 text-sm font-semibold focus:outline-none focus:border-brand cursor-pointer uppercase">
+                    <option value="relevantes">Mais Relevantes</option>
+                    <option value="menor-preco">Menor Preço</option>
+                    <option value="maior-preco">Maior Preço</option>
+                    <option value="lancamentos">Lançamentos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- SIDEBAR DE FILTROS (Gerada pelo JS) -->
+            <aside id="sidebar-filtros" class="hidden md:block w-64 flex-shrink-0 space-y-8">
+                <!-- JS preenche -->
+            </aside>
+
+            <!-- GRID DE PRODUTOS -->
+            <div class="flex-1">
+                <div id="vitrine-catalogo" class="grid grid-cols-2 lg:grid-cols-3 gap-6 relative">
+                    <!-- JS preenche -->
+                </div>
+
+                <!-- Mensagem de nenhum resultado -->
+                <div id="nenhum-resultado" class="hidden py-20 text-center">
+                    <div
+                        class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                        <i class="fas fa-search text-3xl"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-gray-900 mb-2">Nenhum produto encontrado</h3>
+                    <p class="text-gray-500 text-sm mb-6">Tente remover alguns filtros para ver mais resultados.</p>
+                    <button onclick="limparFiltros()"
+                        class="bg-brand text-white font-bold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors uppercase text-sm tracking-wider">
+                        <i class="fas fa-times mr-2"></i> Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-white py-12 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <a href="index.html" class="flex items-center space-x-2 mb-6">
+                    <img src="logo.png" alt="Bitpe Logo" class="h-12 bg-white p-2 rounded-md shadow-sm">
+                </a>
+                <p class="text-gray-400 text-sm">O conforto em seus pés. Uma marca brasileira para todos os estilos.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/db.js?v=5"></script>
+    <script src="js/main.js?v=5"></script>
+
+    <script>
+        // ====================================================
+        // SISTEMA DE FILTROS INTELIGENTES (Lê dados reais do db.js)
+        // ====================================================
+
+        let _filtrosCategorias = [];
+        let _filtrosTamanhos = [];
+        let _filtrosCores = [];
+        let _ordenacao = 'relevantes';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            construirSidebarFiltros();
+            aplicarFiltros();
+
+            // Ordenação
+            document.getElementById('select-ordenar').addEventListener('change', (e) => {
+                _ordenacao = e.target.value;
+                aplicarFiltros();
+            });
+
+            // Mobile toggle
+            document.getElementById('btn-filtros-mobile').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar-filtros');
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('md:block');
+            });
+        });
+
+        function construirSidebarFiltros() {
+            const sidebar = document.getElementById('sidebar-filtros');
+
+            // ====== EXTRAIR DADOS REAIS DO BANCO ======
+            const categorias = [...new Set(bancoDeProdutos.map(p => p.categoria))];
+
+            const todosOsTamanhos = [];
+            bancoDeProdutos.forEach(p => {
+                const tamArr = (typeof p.tamanhos[0] === 'object') ? p.tamanhos : p.tamanhos.map(t => ({ numero: t, disponivel: true }));
+                tamArr.forEach(t => {
+                    if (!todosOsTamanhos.includes(t.numero)) todosOsTamanhos.push(t.numero);
+                });
+            });
+
+            const todasAsCores = [];
+            bancoDeProdutos.forEach(p => {
+                p.cores.forEach(cor => {
+                    if (!todasAsCores.find(c => c.nome === cor.nome)) {
+                        todasAsCores.push(cor);
+                    }
+                });
+            });
+
+            let html = '';
+
+            // === FILTRO: CATEGORIA ===
+            html += `
+                <div class="border-b border-gray-200 pb-6">
+                    <h3 class="font-display font-bold text-lg mb-4 flex justify-between items-center">
+                        CATEGORIA <i class="fas fa-minus text-xs"></i>
+                    </h3>
+                    <ul class="space-y-3" id="filtro-categorias">
+            `;
+            categorias.forEach(cat => {
+                const qtd = bancoDeProdutos.filter(p => p.categoria === cat).length;
+                html += `
+                    <li>
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="checkbox" value="${cat}" onchange="toggleFiltroCategoria(this)" class="form-checkbox h-5 w-5 text-brand rounded border-gray-300 focus:ring-brand accent-[#7c3aed]">
+                            <span class="text-gray-700 group-hover:text-brand font-medium">${cat} (${qtd})</span>
+                        </label>
+                    </li>
+                `;
+            });
+            html += `</ul></div>`;
+
+            // === FILTRO: TAMANHO ===
+            html += `
+                <div class="border-b border-gray-200 pb-6">
+                    <h3 class="font-display font-bold text-lg mb-4 flex justify-between items-center">
+                        TAMANHO <i class="fas fa-minus text-xs"></i>
+                    </h3>
+                    <div class="grid grid-cols-3 gap-2" id="filtro-tamanhos">
+            `;
+            todosOsTamanhos.forEach(tam => {
+                html += `
+                    <button onclick="toggleFiltroTamanho(this, '${tam}')" data-tam="${tam}" class="btn-filtro-tam border border-gray-300 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition-colors rounded">
+                        ${tam}
+                    </button>
+                `;
+            });
+            html += `</div></div>`;
+
+            // === FILTRO: COR ===
+            html += `
+                <div class="border-b border-gray-200 pb-6">
+                    <h3 class="font-display font-bold text-lg mb-4 flex justify-between items-center">
+                        COR <i class="fas fa-minus text-xs"></i>
+                    </h3>
+                    <div class="flex flex-wrap gap-3" id="filtro-cores">
+            `;
+            todasAsCores.forEach(cor => {
+                html += `
+                    <button onclick="toggleFiltroCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-filtro-cor w-8 h-8 rounded-full ${cor.classeCss} border border-gray-300 focus:outline-none hover:scale-110 transition-transform"></button>
+                `;
+            });
+            html += `</div></div>`;
+
+            // === BOTÃO LIMPAR FILTROS ===
+            html += `
+                <button onclick="limparFiltros()" class="w-full border border-gray-300 py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors rounded-lg text-gray-500">
+                    <i class="fas fa-times mr-2"></i> Limpar Filtros
+                </button>
+            `;
+
+            sidebar.innerHTML = html;
+        }
+
+        // === HANDLERS DE FILTRO ===
+        function toggleFiltroCategoria(checkbox) {
+            const val = checkbox.value;
+            if (checkbox.checked) {
+                _filtrosCategorias.push(val);
+            } else {
+                _filtrosCategorias = _filtrosCategorias.filter(c => c !== val);
+            }
+            aplicarFiltros();
+        }
+
+        function toggleFiltroTamanho(btn, tam) {
+            if (_filtrosTamanhos.includes(tam)) {
+                _filtrosTamanhos = _filtrosTamanhos.filter(t => t !== tam);
+                btn.classList.remove('border-brand', 'bg-brand', 'text-white');
+                btn.classList.add('border-gray-300');
+            } else {
+                _filtrosTamanhos.push(tam);
+                btn.classList.add('border-brand', 'bg-brand', 'text-white');
+                btn.classList.remove('border-gray-300');
+            }
+            aplicarFiltros();
+        }
+
+        function toggleFiltroCor(btn, cor) {
+            if (_filtrosCores.includes(cor)) {
+                _filtrosCores = _filtrosCores.filter(c => c !== cor);
+                btn.classList.remove('ring-2', 'ring-brand', 'ring-offset-2');
+            } else {
+                _filtrosCores.push(cor);
+                btn.classList.add('ring-2', 'ring-brand', 'ring-offset-2');
+            }
+            aplicarFiltros();
+        }
+
+        function limparFiltros() {
+            _filtrosCategorias = [];
+            _filtrosTamanhos = [];
+            _filtrosCores = [];
+            _ordenacao = 'relevantes';
+            document.getElementById('select-ordenar').value = 'relevantes';
+
+            document.querySelectorAll('#filtro-categorias input').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.btn-filtro-tam').forEach(b => {
+                b.classList.remove('border-brand', 'bg-brand', 'text-white');
+                b.classList.add('border-gray-300');
+            });
+            document.querySelectorAll('.btn-filtro-cor').forEach(b => {
+                b.classList.remove('ring-2', 'ring-brand', 'ring-offset-2');
+            });
+
+            aplicarFiltros();
+        }
+
+        // === MOTOR CENTRAL DO FILTRO ===
+        function aplicarFiltros() {
+            let resultado = [...bancoDeProdutos];
+
+            if (_filtrosCategorias.length > 0) {
+                resultado = resultado.filter(p => _filtrosCategorias.includes(p.categoria));
+            }
+
+            if (_filtrosTamanhos.length > 0) {
+                resultado = resultado.filter(p => {
+                    const tamArr = (typeof p.tamanhos[0] === 'object') ? p.tamanhos : p.tamanhos.map(t => ({ numero: t, disponivel: true }));
+                    return tamArr.some(t => t.disponivel && _filtrosTamanhos.includes(t.numero));
+                });
+            }
+
+            if (_filtrosCores.length > 0) {
+                resultado = resultado.filter(p => {
+                    return p.cores.some(cor => _filtrosCores.includes(cor.nome));
+                });
+            }
+
+            switch (_ordenacao) {
+                case 'menor-preco':
+                    resultado.sort((a, b) => a.precoAtual - b.precoAtual);
+                    break;
+                case 'maior-preco':
+                    resultado.sort((a, b) => b.precoAtual - a.precoAtual);
+                    break;
+                case 'lancamentos':
+                    resultado.sort((a, b) => (b.etiqueta === 'LANÇAMENTO' ? 1 : 0) - (a.etiqueta === 'LANÇAMENTO' ? 1 : 0));
+                    break;
+            }
+
+            document.getElementById('contagem-produtos').innerText = `Mostrando ${resultado.length} de ${bancoDeProdutos.length} produtos`;
+
+            const gridEl = document.getElementById('vitrine-catalogo');
+            const nenhumEl = document.getElementById('nenhum-resultado');
+
+            if (resultado.length === 0) {
+                gridEl.innerHTML = '';
+                nenhumEl.classList.remove('hidden');
+            } else {
+                nenhumEl.classList.add('hidden');
+                renderizarProdutos(resultado, 'vitrine-catalogo');
+            }
+        }
+    </script>
+</body>
+
+</html>

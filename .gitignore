@@ -1,0 +1,7 @@
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de planejamento (não vão pro ar)
+PLANEJAMENTO_BITPE.md

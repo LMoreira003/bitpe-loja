@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitpe | O conforto é a sua tela</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#7c3aed', /* Roxo vibrante */
+                            dark: '#5b21b6', /* Roxo escuro para hover */
+                            accent: '#facc15', /* Amarelo vibrante para destaques */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fontes do Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Estilos customizados mínimos */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-display {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .hero-banner {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1595950653106-6c9ebd614c3a?w=500&auto=format&fit=crop&q=80/photo-1608231387042-66d1773070a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Efeito de hover suave nos produtos */
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-img {
+            transition: transform 0.3s ease;
+        }
+
+        /* Animação da barra de anúncio corrigida */
+        @keyframes slideUp {
+
+            0%,
+            20% {
+                transform: translateY(0);
+            }
+
+            33%,
+            53% {
+                transform: translateY(-33.333%);
+            }
+
+            66%,
+            86% {
+                transform: translateY(-66.666%);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .text-slider {
+            animation: slideUp 9s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 overflow-x-hidden">
+
+    <!-- BARRA DE ANÚNCIO (Topo) Animada -->
+    <div class="bg-brand-accent text-gray-900 border-b border-yellow-400 overflow-hidden h-10 relative">
+        <div class="flex flex-col text-slider w-full absolute top-0 left-0">
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>🎟️ GANHE 10% OFF NA PRIMEIRA COMPRA</span>
+            </div>
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>💳 PARCELAMOS EM ATÉ 10X SEM JUROS NO CARTÃO</span>
+            </div>
+            <div
+                class="h-10 w-full flex items-center justify-center text-xs md:text-sm font-bold tracking-wide px-4 text-center">
+                <span>✨ É UM PRAZER TER VOCÊ AQUI!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER (Menu Principal) -->
+    <header class="bg-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Menu Hamburger (Mobile) -->
+                <div class="flex items-center md:hidden">
+                    <button class="text-gray-900 hover:text-brand focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center space-x-2">
+                    <a href="index.html">
+                        <img src="logo.png" alt="Bitpe Logo" class="h-10 md:h-12 py-1">
+                    </a>
+                </div>
+
+                <!-- Menu de Navegação (Desktop) -->
+                <nav class="hidden md:flex space-x-8 font-semibold text-sm tracking-wide h-20">
+
+                    <!-- Mulher -->
+                    <div class="group h-full flex items-center relative">
+                        <a href="produtos.html"
+                            class="text-gray-900 group-hover:text-brand transition-colors flex items-center h-full">MULHER
+                            <i class="fas fa-chevron-down text-[10px] ml-1"></i></a>
+                        <!-- Submenu -->
+                        <div
+                            class="absolute top-[80px] -left-4 w-56 bg-white shadow-xl border-t-2 border-brand opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 flex flex-col py-4">
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Lançamentos</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Babuches
+                                Clássicos</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Plataformas</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Sandálias</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-red-500 hover:text-red-600 hover:bg-red-50 uppercase font-medium mt-2 border-t pt-4">Promoções</a>
+                        </div>
+                    </div>
+
+                    <!-- Homem -->
+                    <div class="group h-full flex items-center relative">
+                        <a href="produtos.html"
+                            class="text-gray-900 group-hover:text-brand transition-colors flex items-center h-full">HOMEM
+                            <i class="fas fa-chevron-down text-[10px] ml-1"></i></a>
+                        <div
+                            class="absolute top-[80px] -left-4 w-56 bg-white shadow-xl border-t-2 border-brand opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 flex flex-col py-4">
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Lançamentos</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Babuches
+                                Clássicos</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Tênis
+                                Casuais</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-red-500 hover:text-red-600 hover:bg-red-50 uppercase font-medium mt-2 border-t pt-4">Promoções</a>
+                        </div>
+                    </div>
+
+                    <!-- Infantil -->
+                    <div class="group h-full flex items-center relative">
+                        <a href="produtos.html"
+                            class="text-gray-900 group-hover:text-brand transition-colors flex items-center h-full">INFANTIL
+                            <i class="fas fa-chevron-down text-[10px] ml-1"></i></a>
+                        <div
+                            class="absolute top-[80px] -left-4 w-56 bg-white shadow-xl border-t-2 border-brand opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 flex flex-col py-4">
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Meninos</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Meninas</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Bebês
+                                (0 a 3 anos)</a>
+                            <a href="produtos.html"
+                                class="px-6 py-2 text-gray-600 hover:text-brand hover:bg-gray-50 uppercase font-medium">Personagens</a>
+                        </div>
+                    </div>
+
+                    <!-- Bitpins -->
+                    <div class="group h-full flex items-center relative">
+                        <a href="produtos.html"
+                            class="text-gray-900 group-hover:text-brand transition-colors flex items-center h-full">BITPINS
+                            <i class="fas fa-chevron-down text-[10px] ml-1"></i></a>
+                        <!-- Mega Menu para Bitpins -->
+                        <div
+                            class="absolute top-[80px] -left-48 w-[600px] bg-white shadow-2xl border-t-2 border-brand opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 flex gap-8 p-8">
+                            <div class="flex-1">
+                                <h3 class="font-display font-bold text-lg mb-4 text-gray-900">VER POR TEMA</h3>
+                                <ul class="space-y-3">
+                                    <li><a href="produtos.html"
+                                            class="text-gray-600 hover:text-brand font-medium flex items-center"><i
+                                                class="fas fa-hamburger w-6 text-center text-gray-400"></i> Comidas &
+                                            Bebidas</a></li>
+                                    <li><a href="produtos.html"
+                                            class="text-gray-600 hover:text-brand font-medium flex items-center"><i
+                                                class="fas fa-font w-6 text-center text-gray-400"></i> Letras e
+                                            Números</a></li>
+                                    <li><a href="produtos.html"
+                                            class="text-gray-600 hover:text-brand font-medium flex items-center"><i
+                                                class="fas fa-paw w-6 text-center text-gray-400"></i> Natureza e
+                                            Animais</a></li>
+                                    <li><a href="produtos.html"
+                                            class="text-gray-600 hover:text-brand font-medium flex items-center"><i
+                                                class="fas fa-gamepad w-6 text-center text-gray-400"></i> Games e
+                                            Cultura</a></li>
+                                    <li><a href="produtos.html"
+                                            class="text-gray-600 hover:text-brand font-medium flex items-center"><i
+                                                class="fas fa-briefcase-medical w-6 text-center text-gray-400"></i>
+                                            Saude e Profissões</a></li>
+                                </ul>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-bold text-lg mb-4 text-gray-900">DESTAQUE</h3>
+                                <a href="produtos.html"
+                                    class="bg-gray-50 p-4 rounded text-center border border-gray-100 hover:border-brand cursor-pointer transition-colors relative block">
+                                    <span
+                                        class="absolute top-2 left-2 bg-brand text-white text-xs font-bold px-2 py-1 rounded z-10">KIT</span>
+                                    <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614c3a?w=500&auto=format&fit=crop&q=80"
+                                        alt="Kit Bitpins" class="w-full h-32 object-cover mb-3 rounded shadow-sm">
+                                    <span class="block font-bold text-sm mb-1 text-gray-900">Kit 5 Bitpins
+                                        Sortidos</span>
+                                    <span class="text-brand font-bold">R$ 39,90</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-full flex items-center">
+                        <a href="produtos.html"
+                            class="text-red-500 hover:text-red-700 transition-colors font-bold flex items-center h-full">OFERTAS</a>
+                    </div>
+                </nav>
+
+                <!-- Ícones de Ação (Busca, Carrinho) -->
+                <div class="flex items-center space-x-6">
+                    <div class="hidden lg:block relative">
+                        <input type="text" placeholder="Buscar produtos..."
+                            class="bg-gray-100 rounded-full py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand w-48">
+                        <i class="fas fa-search absolute left-4 top-2.5 text-gray-400"></i>
+                    </div>
+                    <button onclick="window.abrirCarrinho && window.abrirCarrinho()"
+                        class="text-gray-700 hover:text-brand relative">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION (Banners Rotativos) -->
+    <section class="h-[70vh] w-full relative group">
+        <!-- Swiper Container Principal -->
+        <div class="swiper mySwiper w-full h-full">
+            <div class="swiper-wrapper" id="banner-slider">
+                <!-- Os banners de db.js serão injetados aqui -->
+            </div>
+
+            <!-- Controles de Navegação (Setas e Bolinhas) -->
+            <div
+                class="swiper-button-next text-brand-accent drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+            </div>
+            <div
+                class="swiper-button-prev text-brand-accent drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <!-- CATEGORIAS (Círculos Estilo Crocs) -->
+    <section class="py-10 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex overflow-x-auto space-x-4 md:space-x-8 pb-4 justify-start md:justify-center no-scrollbar"
+                style="scrollbar-width: none;">
+                <!-- Homem Aranha ✅ (foto real) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/homem-aranha-home.png" alt="Homem Aranha"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <span class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Homem
+                        Aranha</span>
+                </a>
+
+                <!-- Minecraft ✅ (foto real) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/minecraft-home.png" alt="Minecraft"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Minecraft</span>
+                </a>
+
+                <!-- Princesas ⏳ (salve como: assets/img/categorias/princesas.png) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/princesas.png" alt="Princesas"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-crown text-gray-300 text-3xl md:text-5xl\'></i>';">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Princesas</span>
+                </a>
+
+                <!-- Clássicos ⏳ (salve como: assets/img/categorias/classicos.png) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/classicos.png" alt="Clássicos"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-shoe-prints text-gray-300 text-3xl md:text-5xl\'></i>';">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Clássicos</span>
+                </a>
+
+                <!-- Plataformas ⏳ (salve como: assets/img/categorias/plataformas.png) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/plataformas.png" alt="Plataformas"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-socks text-gray-300 text-3xl md:text-5xl\'></i>';">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Plataformas</span>
+                </a>
+
+                <!-- Heróis ⏳ (salve como: assets/img/categorias/herois.png) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/herois.png" alt="Heróis"
+                            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-mask text-gray-300 text-3xl md:text-5xl\'></i>';">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Heróis</span>
+                </a>
+
+                <!-- Bitpins ⏳ (salve como: assets/img/categorias/bitpins.png) -->
+                <a href="produtos.html" class="group flex flex-col items-center flex-shrink-0 w-24 md:w-32 text-center">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:-translate-y-2 group-hover:drop-shadow-lg">
+                        <img src="assets/img/categorias/bitpins.png" alt="Bitpins Charms"
+                            class="w-full h-full object-contain p-2 rounded-full group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-puzzle-piece text-gray-300 text-3xl md:text-5xl\'></i>';">
+                    </div>
+                    <span
+                        class="text-sm font-medium text-gray-800 group-hover:text-brand transition-colors">Bitpins™</span>
+                </a>
+            </div>
+
+            <style>
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+            </style>
+        </div>
+    </section>
+
+    <!-- BEST SELLERS (Grid de Produtos) -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-10">
+                <h2 class="text-3xl font-bold">OS MAIS VENDIDOS</h2>
+                <a href="produtos.html"
+                    class="hidden md:inline-block border-b-2 border-gray-900 font-bold hover:text-brand hover:border-brand transition-colors uppercase">Ver
+                    Todos</a>
+            </div>
+
+            <div id="vitrine-home" class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Javascript: main.js vai jogar os produtos aqui -->
+            </div>
+
+            <div class="mt-8 text-center md:hidden">
+                <a href="produtos.html"
+                    class="inline-block border-2 border-gray-900 font-bold text-gray-900 py-3 px-8 uppercase w-full">Ver
+                    Todos os Produtos</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- BANNER SECUNDÁRIO / COMUNIDADE -->
+    <section class="bg-gray-900 text-white flex flex-col md:flex-row">
+        <div class="md:w-1/2 p-12 md:p-20 flex flex-col justify-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6 font-display">PERSONALIZE SEU ESTILO.</h2>
+            <p class="text-lg text-gray-300 mb-8">
+                Milhares de combinações possíveis. Escolha seu Bitpe, adicione os Bitpins e mostre sua personalidade a
+                cada passo. O conforto clássico que você ama, com a diversão que você escolhe.
+            </p>
+            <a href="produtos.html"
+                class="bg-brand text-white font-bold py-4 px-8 text-center hover:bg-brand-dark transition-colors font-display text-lg self-start">
+                CRIAR O MEU AGORA
+            </a>
+        </div>
+        <div class="md:w-1/2 h-64 md:h-auto bg-cover bg-center"
+            style="background-image: url('https://images.unsplash.com/photo-1595950653106-6c9ebd614c3a?w=500&auto=format&fit=crop&q=80/photo-1514989940723-e8e51635b782?w=800&auto=format&fit=crop&q=80');">
+        </div>
+    </section>
+
+    <!-- FOOTER BÁSICO -->
+    <footer class="bg-black text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <a href="index.html" class="flex items-center space-x-2 mb-6">
+                    <img src="logo.png" alt="Bitpe Logo" class="h-12 bg-white p-2 rounded-md shadow-sm">
+                </a>
+                <p class="text-gray-400 text-sm">O conforto em seus pés. Uma marca brasileira para todos os estilos.</p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="https://www.instagram.com/bitpecalcados/" target="_blank"
+                        class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-2xl"></i></a>
+                    <a href="https://www.tiktok.com/@bitpeoficial" target="_blank"
+                        class="text-gray-400 hover:text-white"><i class="fab fa-tiktok text-2xl"></i></a>
+                    <a href="https://wa.me/5500000000000" target="_blank" class="text-gray-400 hover:text-white"><i
+                            class="fab fa-whatsapp text-2xl"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 font-display">PRODUTOS</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="produtos.html" class="hover:text-white">Babuches Femininos</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Babuches Masculinos</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Kids & Baby</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Bitpins (Acessórios)</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Cartão Presente</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 font-display">AJUDA & SUPORTE</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="produtos.html" class="hover:text-white">Status do Pedido</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Trocas e Devoluções</a></li>
+                    <li><a href="produtos.html" class="hover:text-white">Guia de Tamanhos</a></li>
+                    <li><a href="https://wa.me/5500000000000" target="_blank" class="hover:text-white">Fale Conosco
+                            (SAC)</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 font-display">FICA LIGADO!</h4>
+                <p class="text-gray-400 text-sm mb-4">Receba novidades, promoções e lançamentos exclusivos de Bitpins.
+                </p>
+                <div class="flex">
+                    <input type="email" placeholder="Seu e-mail..."
+                        class="bg-gray-800 text-white px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-brand">
+                    <button class="bg-brand text-white px-4 font-bold hover:bg-brand-dark transition-colors">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2024 Bitpe Calçados. Todos os direitos reservados.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <i class="fab fa-cc-visa text-2xl"></i>
+                <i class="fab fa-cc-mastercard text-2xl"></i>
+                <i class="fab fa-pix text-2xl"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bibliotecas Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Scripts Funcionais de Banco De Dados Simulado -->
+    <script src="js/db.js?v=5"></script>
+    <script src="js/main.js?v=5"></script>
+</body>
+
+</html>
