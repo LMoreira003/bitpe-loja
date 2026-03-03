@@ -314,20 +314,7 @@ function renderizarPaginaDeDetalhes(idRequisitado) {
                       </button>
                  </div>
                  
-                 <!-- FRETE E PRAZOS -->
-                 <div class="bg-gray-50 border border-gray-200 rounded p-4 mb-6">
-                      <div class="flex items-start">
-                           <i class="fas fa-truck text-gray-400 text-xl mt-1 mr-4"></i>
-                           <div>
-                                <p class="font-bold text-sm text-gray-900">Calcular Frete e Prazo</p>
-                                <div class="flex mt-2 gap-2">
-                                     <input type="text" placeholder="Seu CEP..." class="bg-white border border-gray-300 w-full py-2 px-3 text-sm rounded focus:ring-brand focus:border-brand outline-none">
-                                     <button class="bg-black text-white px-4 text-sm font-bold rounded">OK</button>
-                                </div>
-                           </div>
-                      </div>
-                 </div>
-                 
+
                  <!-- SANFONA DE INFORMAÇÕES (Estilo Accordion) -->
                  <div class="border-t border-gray-200 divide-y divide-gray-200 text-sm">
                       
