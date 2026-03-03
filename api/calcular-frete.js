@@ -90,9 +90,14 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // Filtra opções com erro ou sem preço
+        // IDs dos serviços permitidos:
+        // 1 = PAC (Correios), 2 = SEDEX (Correios)
+        // 3 = .Package (Jadlog), 4 = .Com (Jadlog)
+        const idsPermitidos = [1, 2, 3, 4];
+
+        // Filtra opções válidas e apenas as transportadoras escolhidas
         const opcoes = data
-            .filter(opcao => !opcao.error && opcao.price)
+            .filter(opcao => !opcao.error && opcao.price && idsPermitidos.includes(opcao.id))
             .map(opcao => ({
                 id: opcao.id,
                 nome: opcao.name,
