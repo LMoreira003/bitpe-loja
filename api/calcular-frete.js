@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
     // URL CORRETA de produção do Melhor Envio
     // ATENÇÃO: Se usar token de SANDBOX, trocar para:
     // https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate
-    const MELHOR_ENVIO_URL = 'https://api.melhorenvio.com.br/api/v2/me/shipment/calculate';
+    const MELHOR_ENVIO_URL = 'https://www.melhorenvio.com.br/api/v2/me/shipment/calculate';
 
     const payload = {
         from: { postal_code: '74450010' },       // CEP de origem (Goiânia/GO)
