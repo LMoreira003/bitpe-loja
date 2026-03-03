@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'CEP de destino é obrigatório' });
     }
 
-    const TOKEN = process.env.MELHOR_ENVIO_TOKEN;
+    const TOKEN = process.env.melhorenvio;
 
     if (!TOKEN) {
         return res.status(500).json({ error: 'Token da API não configurado no servidor.' });
