@@ -95,12 +95,19 @@ module.exports = async function handler(req, res) {
         // 3 = .Package (Jadlog), 4 = .Com (Jadlog)
         const idsPermitidos = [1, 2, 3, 4];
 
+        const nomesAmigaveis = {
+            1: 'Correios Transporte (PAC)',
+            2: 'Correios Avião (SEDEX)',
+            3: 'Jadlog Transporte',
+            4: 'Jadlog Avião'
+        };
+
         // Filtra opções válidas e apenas as transportadoras escolhidas
         const opcoes = data
             .filter(opcao => !opcao.error && opcao.price && idsPermitidos.includes(opcao.id))
             .map(opcao => ({
                 id: opcao.id,
-                nome: opcao.name,
+                nome: nomesAmigaveis[opcao.id] || opcao.name,
                 empresa: opcao.company?.name || 'Transportadora',
                 preco: parseFloat(opcao.custom_price || opcao.price),
                 prazo: opcao.delivery_time,
