@@ -243,13 +243,41 @@
                     </div>
 
                     <div class="border-t border-gray-200 pt-4 mb-6">
-                        <div class="flex justify-between items-end">
+                        <div class="flex justify-between items-end mb-6">
                             <span class="font-bold text-gray-500 uppercase tracking-wider text-sm">Total</span>
                             <span class="font-display font-bold text-3xl text-gray-900" id="checkout-total">R$
                                 0,00</span>
                         </div>
-                        <p class="text-xs text-gray-400 text-right mt-1">Parcele em até 12x no cartão via Mercado Pago
-                        </p>
+
+                        <!-- FORMAS DE PAGAMENTO -->
+                        <div class="mb-4">
+                            <h3 class="font-bold text-sm uppercase tracking-wider text-gray-500 mb-3 flex items-center">
+                                <i class="fas fa-wallet mr-2 text-brand"></i> Forma de Pagamento
+                            </h3>
+                            <div class="space-y-3">
+                                <label
+                                    class="border-2 border-brand bg-brand/5 rounded-lg p-3 cursor-pointer hover:border-brand transition-colors flex items-center gap-4 pagamento-label">
+                                    <input type="radio" name="pagamento" value="pix" checked
+                                        onchange="atualizarFormaPagamento()" class="hidden">
+                                    <i class="fab fa-pix text-xl text-brand pagamento-icon"></i>
+                                    <div class="flex-grow">
+                                        <span class="font-bold text-sm">Pix (Mais Rápido)</span>
+                                        <span class="text-xs text-gray-500 block">Pague direto na tela</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer hover:border-brand transition-colors flex items-center gap-4 pagamento-label">
+                                    <input type="radio" name="pagamento" value="mercadopago"
+                                        onchange="atualizarFormaPagamento()" class="hidden">
+                                    <i class="fas fa-credit-card text-xl text-gray-400 pagamento-icon"></i>
+                                    <div class="flex-grow">
+                                        <span class="font-bold text-sm">Cartão / Boleto / ML</span>
+                                        <span class="text-xs text-gray-500 block">Até 12x (Via Mercado Pago)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- BOTÃO MERCADO PAGO -->
@@ -571,27 +599,28 @@
 
             const apiBase = window.location.protocol === 'file:' ? 'https://bitpecalcados.vercel.app' : '';
 
+            const formaPagamento = document.querySelector('input[name="pagamento"]:checked').value;
+
             try {
-                const response = await fetch(apiBase + '/api/gerar-pix', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payloadPagamento)
-                });
+                if (formaPagamento === 'pix') {
+                    // FLUXO DO PIX DIRETO NA TELA
+                    const response = await fetch(apiBase + '/api/gerar-pix', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadPagamento)
+                    });
+                    const dataMP = await response.json();
 
-                const dataMP = await response.json();
+                    if (dataMP.error) {
+                        alert('Erro ao gerar pagamento: ' + dataMP.error + ' - ' + (dataMP.msg || ''));
+                        btnFinalizar.innerHTML = textoOriginalBtn;
+                        btnFinalizar.disabled = false;
+                        return;
+                    }
 
-                if (dataMP.error) {
-                    alert('Erro ao gerar pagamento: ' + dataMP.error + ' - ' + (dataMP.msg || ''));
-                    btnFinalizar.innerHTML = textoOriginalBtn;
-                    btnFinalizar.disabled = false;
-                    return;
-                }
+                    localStorage.removeItem('bitpe_carrinho');
 
-                // Esvazia carrinho porque já "comprou" finalizado
-                localStorage.removeItem('bitpe_carrinho');
-
-                // Renderiza Tela de Sucesso com o PIX
-                document.querySelector('main').innerHTML = `
+                    document.querySelector('main').innerHTML = `
                     <div class="max-w-xl mx-auto py-12 text-center bg-white border border-gray-200 shadow-xl rounded-xl p-8 mt-10">
                         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow">
                             <i class="fab fa-pix text-green-600 text-3xl"></i>
@@ -599,12 +628,10 @@
                         <h1 class="text-3xl font-display font-bold uppercase text-gray-900 mb-2">Pague seu Pix!</h1>
                         <p class="text-gray-500 mb-6">Falta pouco! Escaneie o QR Code ou copie o código abaixo para garantir seu pedido.</p>
                         
-                        <!-- IMAGEM DO QR CODE GERADA PELO BANCO -->
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex justify-center mb-6">
                             <img src="data:image/jpeg;base64,${dataMP.qr_code_base64}" alt="QR Code PIX" class="w-64 h-64 object-contain">
                         </div>
 
-                        <!-- CÓDIGO COPIA E COLA -->
                         <div class="mb-8">
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Código Pix Copia e Cola:</label>
                             <div class="flex gap-2">
@@ -624,7 +651,30 @@
                             <i class="fas fa-shopping-bag mr-2"></i> Voltar à Loja
                         </a>
                     </div>
-                `;
+                    `;
+
+                } else {
+                    // FLUXO CARTÃO/BOLETO (CHECKOUT PRO MP)
+                    btnFinalizar.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> ATUALIZANDO TELA...';
+                    const response = await fetch(apiBase + '/api/gerar-link-mp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadPagamento)
+                    });
+                    const dataMP = await response.json();
+
+                    if (dataMP.error) {
+                        alert('Erro ao redirecionar para Mercado Pago: ' + dataMP.error);
+                        btnFinalizar.innerHTML = textoOriginalBtn;
+                        btnFinalizar.disabled = false;
+                        return;
+                    }
+
+                    if (dataMP.init_point) {
+                        localStorage.removeItem('bitpe_carrinho');
+                        window.location.href = dataMP.init_point;
+                    }
+                }
 
             } catch (erroDeRede) {
                 alert('Erro de conexão com o banco. Tente novamente em instantes.');
@@ -632,6 +682,24 @@
                 btnFinalizar.innerHTML = textoOriginalBtn;
                 btnFinalizar.disabled = false;
             }
+        }
+
+        window.atualizarFormaPagamento = function () {
+            document.querySelectorAll('input[name="pagamento"]').forEach(r => {
+                const label = r.closest('label');
+                const icon = label.querySelector('i');
+                if (r.checked) {
+                    label.classList.add('border-brand', 'bg-brand/5');
+                    label.classList.remove('border-gray-200');
+                    icon.classList.add('text-brand');
+                    icon.classList.remove('text-gray-400');
+                } else {
+                    label.classList.remove('border-brand', 'bg-brand/5');
+                    label.classList.add('border-gray-200');
+                    icon.classList.remove('text-brand');
+                    icon.classList.add('text-gray-400');
+                }
+            });
         }
 
         // Função utilitária atrelada ao HTML novo para copiar o Pix
