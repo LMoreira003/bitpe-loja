@@ -510,7 +510,7 @@
 
         // REDIRECIONA PARA O MERCADO PAGO
         // (Será conectado à API real - por enquanto salva dados e mostra confirmação)
-        function redirecionarParaMercadoPago() {
+        async function redirecionarParaMercadoPago() {
             const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'];
             let camposVazios = [];
 
@@ -537,63 +537,112 @@
                 return;
             }
 
-            const dadosPedido = {
-                cliente: {
+            const btnFinalizar = document.getElementById('btn-pagar');
+            const textoOriginalBtn = btnFinalizar.innerHTML;
+            btnFinalizar.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i> GERANDO PIX...';
+            btnFinalizar.disabled = true;
+
+            const itensCarrinho = JSON.parse(localStorage.getItem('bitpe_carrinho')) || [];
+
+            // Monta o array de produtos com preço para a API
+            const produtosComPreco = itensCarrinho.map(item => {
+                const prodReal = bancoDeProdutos.find(p => String(p.id) === String(item.produtoId));
+                return {
+                    id: item.produtoId,
+                    nome: prodReal ? prodReal.nome : 'Produto Genérico',
+                    preco: prodReal ? prodReal.precoAtual : 0,
+                    qtd: item.qtd || 1
+                };
+            });
+
+            const payloadPagamento = {
+                freteOpcao: {
+                    tipo: document.querySelector('input[name="frete"]:checked')?.value || 'pac',
+                    preco: _freteSelecionado
+                },
+                produtos: produtosComPreco,
+                clienteCadastro: {
                     nome: document.getElementById('nome').value,
                     email: document.getElementById('email').value,
-                    telefone: document.getElementById('telefone').value,
                     cpf: document.getElementById('cpf').value,
-                },
-                endereco: {
-                    cep: document.getElementById('cep').value,
-                    rua: document.getElementById('rua').value,
-                    numero: document.getElementById('numero').value,
-                    complemento: document.getElementById('complemento').value,
-                    bairro: document.getElementById('bairro').value,
-                    cidade: document.getElementById('cidade').value,
-                    estado: document.getElementById('estado').value,
-                },
-                frete: {
-                    tipo: document.querySelector('input[name="frete"]:checked')?.value || 'pac',
-                    valor: _freteSelecionado
-                },
-                subtotal: _subtotalCheckout,
-                total: _subtotalCheckout + _freteSelecionado,
-                itens: JSON.parse(localStorage.getItem('bitpe_carrinho')) || []
+                    telefone: document.getElementById('telefone').value
+                }
             };
 
-            localStorage.setItem('bitpe_ultimo_pedido', JSON.stringify(dadosPedido));
+            const apiBase = window.location.protocol === 'file:' ? 'https://bitpecalcados.vercel.app' : '';
 
-            // TODO: Aqui será a chamada para API /api/criar-pagamento que cria o link do Mercado Pago
-            // Por enquanto, simula o fluxo completo:
-            localStorage.removeItem('bitpe_carrinho');
+            try {
+                const response = await fetch(apiBase + '/api/gerar-pix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadPagamento)
+                });
 
-            document.querySelector('main').innerHTML = `
-                <div class="max-w-lg mx-auto py-20 text-center">
-                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-check text-green-600 text-4xl"></i>
+                const dataMP = await response.json();
+
+                if (dataMP.error) {
+                    alert('Erro ao gerar pagamento: ' + dataMP.error + ' - ' + (dataMP.msg || ''));
+                    btnFinalizar.innerHTML = textoOriginalBtn;
+                    btnFinalizar.disabled = false;
+                    return;
+                }
+
+                // Esvazia carrinho porque já "comprou" finalizado
+                localStorage.removeItem('bitpe_carrinho');
+
+                // Renderiza Tela de Sucesso com o PIX
+                document.querySelector('main').innerHTML = `
+                    <div class="max-w-xl mx-auto py-12 text-center bg-white border border-gray-200 shadow-xl rounded-xl p-8 mt-10">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow">
+                            <i class="fab fa-pix text-green-600 text-3xl"></i>
+                        </div>
+                        <h1 class="text-3xl font-display font-bold uppercase text-gray-900 mb-2">Pague seu Pix!</h1>
+                        <p class="text-gray-500 mb-6">Falta pouco! Escaneie o QR Code ou copie o código abaixo para garantir seu pedido.</p>
+                        
+                        <!-- IMAGEM DO QR CODE GERADA PELO BANCO -->
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex justify-center mb-6">
+                            <img src="data:image/jpeg;base64,${dataMP.qr_code_base64}" alt="QR Code PIX" class="w-64 h-64 object-contain">
+                        </div>
+
+                        <!-- CÓDIGO COPIA E COLA -->
+                        <div class="mb-8">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Código Pix Copia e Cola:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="codigo-pix" value="${dataMP.pix_copia_e_cola}" readonly class="w-full border border-gray-300 bg-gray-50 rounded-lg py-3 px-4 text-xs text-gray-700 outline-none">
+                                <button onclick="copiarPix()" class="bg-black text-white px-6 font-bold uppercase text-xs rounded-lg hover:bg-brand transition-colors whitespace-nowrap">
+                                    <i class="fas fa-copy mr-1"></i> Copiar
+                                </button>
+                            </div>
+                            <p id="copiado-msg" class="text-brand text-xs font-bold mt-2 hidden transition-all"><i class="fas fa-check"></i> Código copiado com sucesso!</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 text-left">
+                            <p class="text-sm text-blue-700"><i class="fas fa-clock mr-2"></i> <strong>Atenção:</strong> Este código expira em 30 minutos. Após o pagamento, o pedido será aprovado e despachado rumo à sua casa!</p>
+                        </div>
+
+                        <a href="index.html" class="inline-block bg-gray-200 text-gray-600 font-bold py-4 px-10 rounded-lg uppercase tracking-wider hover:bg-gray-300 transition-colors shadow-sm">
+                            <i class="fas fa-shopping-bag mr-2"></i> Voltar à Loja
+                        </a>
                     </div>
-                    <h1 class="text-3xl font-display font-bold uppercase text-gray-900 mb-4">Pedido Confirmado!</h1>
-                    <p class="text-gray-500 mb-2">Obrigado, <strong>${dadosPedido.cliente.nome.split(' ')[0]}</strong>! Seu pedido foi recebido.</p>
-                    <p class="text-gray-500 mb-8">Confirmação enviada para <strong>${dadosPedido.cliente.email}</strong></p>
-                    
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-left">
-                        <h3 class="font-bold text-sm uppercase tracking-wider mb-3 text-gray-500">Dados do Pedido</h3>
-                        <p class="text-sm text-gray-700"><strong>Frete:</strong> ${dadosPedido.frete.tipo.toUpperCase()} — R$ ${dadosPedido.frete.valor.toFixed(2).replace('.', ',')}</p>
-                        <p class="text-sm text-gray-700 mt-1"><strong>Total:</strong> R$ ${dadosPedido.total.toFixed(2).replace('.', ',')}</p>
-                        <p class="text-sm text-gray-700 mt-1"><strong>Entrega:</strong> ${dadosPedido.endereco.rua}, ${dadosPedido.endereco.numero} ${dadosPedido.endereco.complemento ? '- ' + dadosPedido.endereco.complemento : ''}</p>
-                        <p class="text-sm text-gray-700">${dadosPedido.endereco.bairro} - ${dadosPedido.endereco.cidade}/${dadosPedido.endereco.estado}</p>
-                    </div>
+                `;
 
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-                        <p class="text-sm text-blue-700"><i class="fas fa-info-circle mr-2"></i> <strong>Em breve:</strong> O pagamento será processado pelo Mercado Pago com PIX, Cartão ou Boleto.</p>
-                    </div>
+            } catch (erroDeRede) {
+                alert('Erro de conexão com o banco. Tente novamente em instantes.');
+                console.error(erroDeRede);
+                btnFinalizar.innerHTML = textoOriginalBtn;
+                btnFinalizar.disabled = false;
+            }
+        }
 
-                    <a href="index.html" class="inline-block bg-brand text-white font-bold py-4 px-10 rounded-lg uppercase tracking-wider hover:bg-brand-dark transition-colors shadow-lg">
-                        <i class="fas fa-home mr-2"></i> Voltar à Loja
-                    </a>
-                </div>
-            `;
+        // Função utilitária atrelada ao HTML novo para copiar o Pix
+        window.copiarPix = function () {
+            var copyText = document.getElementById("codigo-pix");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+
+            document.getElementById("copiado-msg").classList.remove("hidden");
+            setTimeout(() => { document.getElementById("copiado-msg").classList.add("hidden"); }, 3000);
         }
 
         // Helper: mostra feedback inline
