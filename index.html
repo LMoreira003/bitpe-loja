@@ -496,6 +496,19 @@
         <i class="fab fa-whatsapp text-3xl"></i>
     </a>
 
+    <script>
+        // Limpa o carrinho somente se o cliente vier redirecionado de um pagamento APROVADO do Mercado Pago
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('status') === 'approved' || params.get('collection_status') === 'approved') {
+            localStorage.removeItem('bitpe_carrinho');
+            // Remove a flag da URL para ficar limpo
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // Mostra um aviso bonitinho se quiser
+            setTimeout(() => {
+                alert("Pagamento Aprovado com Sucesso! Seu pedido será preparado.");
+            }, 500);
+        }
+    </script>
 </body>
 
 </html>
