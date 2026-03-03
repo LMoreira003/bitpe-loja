@@ -1,7 +1,7 @@
 // API Serverless — Calcula o frete usando a API do Melhor Envio
 // Roda na Vercel automaticamente como endpoint: /api/calcular-frete
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // CORS — permite o site chamar essa API
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
