@@ -104,12 +104,16 @@ module.exports = async function handler(req, res) {
             .sort((a, b) => a.preco - b.preco);
 
         if (opcoes.length === 0) {
-            // Log de debug para ver o que a API retornou
-            const erros = data.filter(o => o.error).map(o => `${o.name}: ${o.error}`);
-            console.error('[DEBUG] Nenhuma opção válida. Erros:', erros);
+            // Coleta os erros detalhados de cada serviço para diagnóstico
+            const detalhes = data.map(o => ({
+                servico: o.name || o.id,
+                erro: o.error || null,
+                preco: o.price || null
+            }));
+            console.error('[DEBUG] Nenhuma opção válida. Detalhes:', JSON.stringify(detalhes));
             return res.status(200).json({
                 error: 'Nenhuma opção de frete disponível para este CEP.',
-                debug_erros: erros
+                debug_detalhes: detalhes
             });
         }
 
