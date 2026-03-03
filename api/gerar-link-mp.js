@@ -21,25 +21,18 @@ module.exports = async function handler(req, res) {
     const client = new MercadoPagoConfig({ accessToken: TOKEN_MP, options: { timeout: 5000 } });
     const preference = new Preference(client);
 
-    // 3. Monta lista de itens
-    const items = dadosGerais.produtos.map(p => ({
-        id: String(p.id),
-        title: p.nome,
-        quantity: Number(p.qtd),
-        unit_price: Number(p.preco),
+    // 3. Monta lista de itens (FORÇADO R$ 1,00 DE TESTE)
+    // ESTA PARTE É SOMENTE PARA O TESTE REAL QUE O LUCAS PEDIU. DEVE SER DESFEITA DEPOIS!
+    const items = [{
+        id: 'teste-1',
+        title: 'Produto de Teste (Bitpe)',
+        quantity: 1,
+        unit_price: 1.00, // Mercado Pago exige pelo menos R$ 1.00 ou superior dependendo da conta
         currency_id: 'BRL'
-    }));
+    }];
 
-    // Adiciona frete como um item na conta
-    if (valorFrete > 0) {
-        items.push({
-            id: 'frete',
-            title: `Frete (${dadosGerais.freteOpcao.tipo.toUpperCase()})`,
-            quantity: 1,
-            unit_price: Number(valorFrete),
-            currency_id: 'BRL'
-        });
-    }
+    // ATENÇÃO: Ignora o frete para não somar com R$ 1,00
+    // O array de produtos reais da loja também está ignorado nesta compilação!
 
     const body = {
         items,
