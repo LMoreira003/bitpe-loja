@@ -19,21 +19,39 @@ module.exports = async function handler(req, res) {
     const TOKEN = process.env.MELHOR_ENVIO_TOKEN;
 
     if (!TOKEN) {
-        // Se não tem token configurado, retorna frete simulado
-        return res.status(200).json({
-            opcoes: [
-                { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
-                { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
-            ],
-            simulado: true,
-            aviso: 'Token não configurado — valores simulados'
-        });
+        return res.status(500).json({ error: 'Token da API não configurado no servidor.' });
     }
 
     const cepLimpo = String(cepDestino).replace(/\D/g, '');
 
+    // URL CORRETA de produção do Melhor Envio
+    // ATENÇÃO: Se usar token de SANDBOX, trocar para:
+    // https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate
+    const MELHOR_ENVIO_URL = 'https://api.melhorenvio.com.br/api/v2/me/shipment/calculate';
+
+    const payload = {
+        from: { postal_code: '74450010' },       // CEP de origem (Goiânia/GO)
+        to: { postal_code: cepLimpo },          // CEP de destino do cliente
+        products: [
+            {
+                id: '1',
+                width: 30,
+                height: 15,
+                length: 35,
+                weight: 0.5,
+                insurance_value: 100,
+                quantity: 1
+            }
+        ],
+        options: {
+            receipt: false,
+            own_hand: false
+        }
+        // Sem filtro de serviços — retorna TODOS disponíveis para o CEP
+    };
+
     try {
-        const response = await fetch('https://www.melhorenvio.com.br/api/v2/me/shipment/calculate', {
+        const response = await fetch(MELHOR_ENVIO_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,61 +59,38 @@ module.exports = async function handler(req, res) {
                 'Accept': 'application/json',
                 'User-Agent': 'Bitpe Calcados (contato@bitpe.com.br)'
             },
-            body: JSON.stringify({
-                from: { postal_code: '74450010' },
-                to: { postal_code: cepLimpo },
-                products: [
-                    {
-                        id: '1',
-                        width: 30,
-                        height: 15,
-                        length: 35,
-                        weight: 0.5,
-                        insurance_value: 100,
-                        quantity: 1
-                    }
-                ],
-                options: {
-                    receipt: false,
-                    own_hand: false
-                },
-                services: '1,2,17,18'
-                // 1 = PAC, 2 = SEDEX, 17 = PAC Mini, 18 = SEDEX 10
-            })
+            body: JSON.stringify(payload)
         });
 
-        // Captura o corpo bruto para debug caso não seja JSON válido
+        // Lê o corpo bruto para debug
         const rawText = await response.text();
 
+        // Tenta parsear o JSON
         let data;
         try {
             data = JSON.parse(rawText);
         } catch (parseErr) {
-            console.error('Resposta não-JSON do Melhor Envio:', rawText);
-            return res.status(200).json({
-                opcoes: [
-                    { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
-                    { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
-                ],
-                simulado: true,
-                aviso: 'Frete estimado — erro ao processar resposta da transportadora'
+            console.error('[DEBUG] HTTP Status:', response.status);
+            console.error('[DEBUG] Resposta bruta (não-JSON):', rawText.substring(0, 500));
+            return res.status(502).json({
+                error: 'Resposta inesperada da transportadora',
+                debug_status: response.status,
+                debug_body: rawText.substring(0, 300)
             });
         }
 
-        // Se a API retornou um erro (ex: token inválido, CEP inválido)
+        // Se a API retornou um objeto de erro (ex: token inválido)
         if (!Array.isArray(data)) {
-            console.error('Resposta inesperada do Melhor Envio:', JSON.stringify(data));
-            return res.status(200).json({
-                opcoes: [
-                    { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
-                    { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
-                ],
-                simulado: true,
-                aviso: 'Frete estimado — serviço temporariamente indisponível'
+            console.error('[DEBUG] HTTP Status:', response.status);
+            console.error('[DEBUG] Resposta não-array:', JSON.stringify(data));
+            return res.status(502).json({
+                error: 'Erro retornado pela transportadora',
+                debug_status: response.status,
+                debug_resposta: data
             });
         }
 
-        // Filtra apenas opções disponíveis (sem erro, com preço)
+        // Filtra opções com erro ou sem preço
         const opcoes = data
             .filter(opcao => !opcao.error && opcao.price)
             .map(opcao => ({
@@ -106,30 +101,25 @@ module.exports = async function handler(req, res) {
                 prazo: opcao.delivery_time,
                 icone: (opcao.company?.name || '').toLowerCase().includes('correios') ? 'fa-box' : 'fa-truck'
             }))
-            .sort((a, b) => a.preco - b.preco); // Mais barato primeiro
+            .sort((a, b) => a.preco - b.preco);
 
         if (opcoes.length === 0) {
+            // Log de debug para ver o que a API retornou
+            const erros = data.filter(o => o.error).map(o => `${o.name}: ${o.error}`);
+            console.error('[DEBUG] Nenhuma opção válida. Erros:', erros);
             return res.status(200).json({
-                opcoes: [
-                    { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
-                    { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
-                ],
-                simulado: true,
-                aviso: 'Frete estimado — nenhuma opção disponível para este CEP'
+                error: 'Nenhuma opção de frete disponível para este CEP.',
+                debug_erros: erros
             });
         }
 
         return res.status(200).json({ opcoes, simulado: false });
 
     } catch (error) {
-        console.error('Erro ao chamar Melhor Envio:', error.message);
-        return res.status(200).json({
-            opcoes: [
-                { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
-                { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
-            ],
-            simulado: true,
-            aviso: 'Frete estimado — falha de conexão com a transportadora'
+        console.error('[DEBUG] Erro de rede ao chamar Melhor Envio:', error.message);
+        return res.status(503).json({
+            error: 'Falha de conexão com a transportadora',
+            debug_mensagem: error.message
         });
     }
-}
+};

@@ -440,6 +440,12 @@
             })
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
+                    // Se a API retornou erro
+                    if (data.error) {
+                        listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold"><i class="fas fa-exclamation-circle mr-1"></i>' + data.error + '</p>';
+                        console.error('[FRETE] Erro da API:', data);
+                        return;
+                    }
                     var fretes = data.opcoes || [];
                     if (fretes.length === 0) { listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold">Nenhuma opção de frete para este CEP.</p>'; return; }
                     var htmlFretes = '';
@@ -454,12 +460,12 @@
                             '<span class="text-xs text-gray-500 block">' + frete.empresa + ' — ' + frete.prazo + ' dias úteis</span></div>' +
                             '<span class="font-display font-bold text-lg">R$ ' + frete.preco.toFixed(2).replace('.', ',') + '</span></label>';
                     });
-                    if (data.simulado) { htmlFretes += '<p class="text-xs text-orange-500 mt-2"><i class="fas fa-info-circle mr-1"></i> Valores estimados.</p>'; }
                     listaFretes.innerHTML = htmlFretes;
                     selecionarFrete(fretes[0].preco);
                 })
-                .catch(function () {
-                    listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold">Erro ao calcular frete. Tente novamente.</p>';
+                .catch(function (e) {
+                    listaFretes.innerHTML = '<p class="text-red-500 text-sm font-bold"><i class="fas fa-exclamation-circle mr-1"></i>Erro de conexão ao calcular frete.</p>';
+                    console.error('[FRETE] Erro de conexão:', e);
                 });
         }
 
