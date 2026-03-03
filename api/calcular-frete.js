@@ -25,12 +25,15 @@ export default async function handler(req, res) {
                 { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
                 { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
             ],
-            simulado: true
+            simulado: true,
+            aviso: 'Token não configurado — valores simulados'
         });
     }
 
+    const cepLimpo = String(cepDestino).replace(/\D/g, '');
+
     try {
-        const response = await fetch('https://melhorenvio.com.br/api/v2/me/shipment/calculate', {
+        const response = await fetch('https://www.melhorenvio.com.br/api/v2/me/shipment/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,10 +43,10 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 from: { postal_code: '74450010' },
-                to: { postal_code: cepDestino.replace(/\D/g, '') },
+                to: { postal_code: cepLimpo },
                 products: [
                     {
-                        id: "1",
+                        id: '1',
                         width: 30,
                         height: 15,
                         length: 35,
@@ -51,22 +54,57 @@ export default async function handler(req, res) {
                         insurance_value: 100,
                         quantity: 1
                     }
-                ]
+                ],
+                options: {
+                    receipt: false,
+                    own_hand: false
+                },
+                services: '1,2,17,18'
+                // 1 = PAC, 2 = SEDEX, 17 = PAC Mini, 18 = SEDEX 10
             })
         });
 
-        const data = await response.json();
+        // Captura o corpo bruto para debug caso não seja JSON válido
+        const rawText = await response.text();
 
-        // Filtra apenas opções disponíveis (sem erro)
+        let data;
+        try {
+            data = JSON.parse(rawText);
+        } catch (parseErr) {
+            console.error('Resposta não-JSON do Melhor Envio:', rawText);
+            return res.status(200).json({
+                opcoes: [
+                    { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
+                    { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
+                ],
+                simulado: true,
+                aviso: 'Frete estimado — erro ao processar resposta da transportadora'
+            });
+        }
+
+        // Se a API retornou um erro (ex: token inválido, CEP inválido)
+        if (!Array.isArray(data)) {
+            console.error('Resposta inesperada do Melhor Envio:', JSON.stringify(data));
+            return res.status(200).json({
+                opcoes: [
+                    { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
+                    { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
+                ],
+                simulado: true,
+                aviso: 'Frete estimado — serviço temporariamente indisponível'
+            });
+        }
+
+        // Filtra apenas opções disponíveis (sem erro, com preço)
         const opcoes = data
             .filter(opcao => !opcao.error && opcao.price)
             .map(opcao => ({
                 id: opcao.id,
                 nome: opcao.name,
-                empresa: opcao.company.name,
+                empresa: opcao.company?.name || 'Transportadora',
                 preco: parseFloat(opcao.custom_price || opcao.price),
                 prazo: opcao.delivery_time,
-                icone: opcao.company.name.includes('Correios') ? 'fa-box' : 'fa-truck'
+                icone: (opcao.company?.name || '').toLowerCase().includes('correios') ? 'fa-box' : 'fa-truck'
             }))
             .sort((a, b) => a.preco - b.preco); // Mais barato primeiro
 
@@ -77,21 +115,21 @@ export default async function handler(req, res) {
                     { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
                 ],
                 simulado: true,
-                aviso: 'Frete estimado — valores reais podem variar'
+                aviso: 'Frete estimado — nenhuma opção disponível para este CEP'
             });
         }
 
         return res.status(200).json({ opcoes, simulado: false });
 
     } catch (error) {
-        console.error('Erro Melhor Envio:', error);
-        // Fallback: frete simulado em caso de erro
+        console.error('Erro ao chamar Melhor Envio:', error.message);
         return res.status(200).json({
             opcoes: [
                 { id: 1, nome: 'PAC', empresa: 'Correios', preco: 19.90, prazo: 10, icone: 'fa-box' },
                 { id: 2, nome: 'SEDEX', empresa: 'Correios', preco: 34.90, prazo: 4, icone: 'fa-rocket' }
             ],
-            simulado: true
+            simulado: true,
+            aviso: 'Frete estimado — falha de conexão com a transportadora'
         });
     }
 }
