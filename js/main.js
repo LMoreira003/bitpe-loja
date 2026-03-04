@@ -34,9 +34,9 @@ function renderizarProdutos(lista, containerId) {
 
         // --- MONTANDO A IMAGEM ---
         // Se a imagem não for encontrada, eu criei uma inteligência artificial para jogar uma caixinha cinza no lugar avisando
-        let imgErroFallout = "onerror=\"this.onerror=null; this.src='https://placehold.co/500x500/eaeaea/999?text=Cade+a+Sua+Foto+O+Chefe';\"";
+        let imgErroFallout = "onerror=\"this.onerror=null; this.src='https://placehold.co/500x500/f3f4f6/d1d5db?text=Sem+Imagem';\"";
         let opacityEsgotado = produto.esgotado ? "grayscale opacity-60" : "mix-blend-multiply";
-        let imagemHtml = `<img src="${produto.imagem}" ${imgErroFallout} alt="${produto.nome}" class="product-img object-contain w-full h-full p-3 ${opacityEsgotado}">`;
+        let imagemHtml = `<img src="${produto.imagem || 'https://placehold.co/500x500/f3f4f6/d1d5db?text=Sem+Imagem'}" ${imgErroFallout} alt="${produto.nome}" class="product-img object-contain w-full h-full p-3 ${opacityEsgotado}">`;
 
         // --- FINAL DO CARD COMPLETO EM HTML ---
         // A tag <a> envolve quase todo o card para ser clicável, menos o coração (z-10)
@@ -101,6 +101,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Renderiza vitrines com os dados carregados
     renderizarProdutos(_produtosCarregados, 'vitrine-home');
     renderizarProdutos(_produtosCarregados, 'vitrine-catalogo');
+
+    // Agora que os produtos foram carregados, limpa itens órfãos do carrinho e recalcula o badge
+    atualizarEVisibilizarCarrinhoHTML();
 
     // Se a página de detalhes existir, renderiza ela também
     const containerDetalhe = document.getElementById('produto-container');
