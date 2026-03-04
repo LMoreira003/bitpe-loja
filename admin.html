@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Bitpe</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#7c3aed', dark: '#5b21b6', accent: '#facc15' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- TELA DE LOGIN -->
+    <div id="tela-login" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-200">
+            <div class="text-center mb-8">
+                <img src="logo.png" alt="Bitpe" class="h-12 mx-auto mb-6">
+                <h1 class="font-display text-2xl font-bold text-gray-900 mb-2">Painel Administrativo</h1>
+                <p class="text-gray-500 text-sm">Acesso restrito. Digite a senha do administrador.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Senha de
+                        Acesso</label>
+                    <div class="relative">
+                        <input type="password" id="admin-senha" placeholder="••••••••"
+                            class="w-full border-2 border-gray-200 rounded-lg py-3 px-4 pr-12 focus:outline-none focus:border-brand transition-colors text-lg tracking-widest"
+                            onkeydown="if(event.key==='Enter') loginAdmin()">
+                        <i class="fas fa-key absolute right-4 top-4 text-gray-300"></i>
+                    </div>
+                </div>
+
+                <button onclick="loginAdmin()"
+                    class="w-full bg-brand text-white font-bold h-14 rounded-lg uppercase tracking-wider hover:bg-brand-dark transition-colors shadow-lg flex items-center justify-center text-lg">
+                    <i class="fas fa-sign-in-alt mr-3"></i> Entrar
+                </button>
+
+                <p id="login-erro" class="text-red-500 text-xs font-bold text-center hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Senha incorreta. Tente novamente.
+                </p>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                <a href="index.html" class="text-gray-400 text-sm hover:text-brand transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Voltar à Loja
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL ADMIN (Aparece após login) -->
+    <div id="painel-admin" class="hidden">
+
+        <!-- SIDEBAR + HEADER -->
+        <div class="flex min-h-screen">
+
+            <!-- BARRA LATERAL -->
+            <aside class="w-64 bg-gray-900 text-white flex-shrink-0 flex flex-col fixed h-full z-40">
+                <div class="p-6 border-b border-gray-800">
+                    <img src="logo.png" alt="Bitpe" class="h-8 bg-white p-1 rounded">
+                    <p class="text-gray-500 text-xs mt-2 font-bold uppercase tracking-wider">Painel do Dono</p>
+                </div>
+
+                <nav class="flex-grow py-4">
+                    <button onclick="navegarAdmin('dashboard')"
+                        class="admin-nav-btn w-full text-left px-6 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-300 hover:text-white"
+                        data-tab="dashboard">
+                        <i class="fas fa-chart-line w-5 text-center"></i> Dashboard
+                    </button>
+                    <button onclick="navegarAdmin('pedidos')"
+                        class="admin-nav-btn w-full text-left px-6 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-300 hover:text-white"
+                        data-tab="pedidos">
+                        <i class="fas fa-box w-5 text-center"></i> Pedidos
+                    </button>
+                    <button onclick="navegarAdmin('produtos')"
+                        class="admin-nav-btn w-full text-left px-6 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-300 hover:text-white"
+                        data-tab="produtos">
+                        <i class="fas fa-tags w-5 text-center"></i> Produtos
+                    </button>
+                </nav>
+
+                <div class="p-4 border-t border-gray-800">
+                    <button onclick="logoutAdmin()"
+                        class="w-full text-left px-2 py-2 flex items-center gap-3 text-red-400 hover:text-red-300 text-sm font-medium transition-colors">
+                        <i class="fas fa-sign-out-alt w-5 text-center"></i> Sair
+                    </button>
+                </div>
+            </aside>
+
+            <!-- CONTEÚDO PRINCIPAL -->
+            <main class="flex-grow ml-64">
+
+                <!-- HEADER DO ADMIN -->
+                <header
+                    class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30">
+                    <div>
+                        <h1 id="admin-titulo-pagina" class="font-display text-xl font-bold text-gray-900">Dashboard</h1>
+                        <p class="text-xs text-gray-400">Bitpe Calçados — Painel Administrativo</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs text-gray-400" id="admin-data-hora"></span>
+                        <div
+                            class="w-9 h-9 bg-brand rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- ÁREA DE CONTEÚDO DINÂMICO -->
+                <div class="p-8" id="admin-conteudo">
+
+                    <!-- DASHBOARD -->
+                    <div id="tab-dashboard">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <!-- Card Faturamento -->
+                            <div
+                                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pedidos
+                                        Hoje</span>
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shopping-cart text-blue-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900" id="dash-pedidos-hoje">—</p>
+                                <p class="text-xs text-gray-400 mt-1">Atualize abaixo</p>
+                            </div>
+
+                            <!-- Card Total Vendas -->
+                            <div
+                                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento
+                                        Total</span>
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-dollar-sign text-green-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900" id="dash-faturamento">—</p>
+                                <p class="text-xs text-gray-400 mt-1">Pedidos pagos</p>
+                            </div>
+
+                            <!-- Card A Despachar -->
+                            <div
+                                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">A
+                                        Despachar</span>
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-truck text-orange-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900" id="dash-despachar">—</p>
+                                <p class="text-xs text-gray-400 mt-1">Aguardando envio</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="font-display text-lg font-bold mb-4">Últimos Pedidos</h3>
+                            <div id="dash-ultimos-pedidos" class="text-gray-400 text-sm">
+                                <p class="text-center py-8"><i class="fas fa-database mr-2"></i>Conecte o Supabase para
+                                    ver os pedidos aqui.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEDIDOS (escondido por default) -->
+                    <div id="tab-pedidos" class="hidden">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                                <h3 class="font-display text-lg font-bold">Todos os Pedidos</h3>
+                                <button onclick="carregarPedidos()"
+                                    class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-dark transition-colors">
+                                    <i class="fas fa-sync-alt mr-2"></i> Atualizar
+                                </button>
+                            </div>
+                            <div id="tabela-pedidos" class="p-6">
+                                <p class="text-gray-400 text-sm text-center py-8"><i
+                                        class="fas fa-database mr-2"></i>Clique em "Atualizar" para carregar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PRODUTOS (escondido por default) -->
+                    <div id="tab-produtos" class="hidden">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                                <h3 class="font-display text-lg font-bold">Catálogo de Produtos</h3>
+                                <button onclick="abrirFormProduto()"
+                                    class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-dark transition-colors">
+                                    <i class="fas fa-plus mr-2"></i> Novo Produto
+                                </button>
+                            </div>
+                            <div id="tabela-produtos" class="p-6">
+                                <p class="text-gray-400 text-sm text-center py-8"><i
+                                        class="fas fa-database mr-2"></i>Conecte o Supabase para gerenciar produtos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // SISTEMA DE LOGIN SIMPLES (Token via Env)
+        // =============================================
+        let _adminToken = '';
+
+        function loginAdmin() {
+            const senha = document.getElementById('admin-senha').value.trim();
+            if (!senha) return;
+
+            // A senha digitada será usada como token para as chamadas à API
+            _adminToken = senha;
+
+            // Tenta carregar pedidos para validar se a senha é correta
+            fetch('/api/admin/pedidos', {
+                headers: { 'Authorization': 'Bearer ' + _adminToken }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('login-erro').classList.remove('hidden');
+                        _adminToken = '';
+                        return;
+                    }
+                    // Login OK!
+                    document.getElementById('tela-login').classList.add('hidden');
+                    document.getElementById('painel-admin').classList.remove('hidden');
+                    document.getElementById('login-erro').classList.add('hidden');
+                    navegarAdmin('dashboard');
+                    atualizarRelogio();
+                    setInterval(atualizarRelogio, 60000);
+                })
+                .catch(() => {
+                    document.getElementById('login-erro').classList.remove('hidden');
+                    _adminToken = '';
+                });
+        }
+
+        function logoutAdmin() {
+            _adminToken = '';
+            document.getElementById('painel-admin').classList.add('hidden');
+            document.getElementById('tela-login').classList.remove('hidden');
+            document.getElementById('admin-senha').value = '';
+        }
+
+        // =============================================
+        // NAVEGAÇÃO ENTRE ABAS
+        // =============================================
+        function navegarAdmin(tab) {
+            // Esconde todas as tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+            // Mostra a tab clicada
+            const tabEl = document.getElementById('tab-' + tab);
+            if (tabEl) tabEl.classList.remove('hidden');
+
+            // Atualiza visual dos botões da sidebar
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-gray-800', 'text-white', 'border-l-4', 'border-brand');
+                btn.classList.add('text-gray-300');
+            });
+            const btnAtivo = document.querySelector(`[data-tab="${tab}"]`);
+            if (btnAtivo) {
+                btnAtivo.classList.add('bg-gray-800', 'text-white', 'border-l-4', 'border-brand');
+                btnAtivo.classList.remove('text-gray-300');
+            }
+
+            // Atualiza título
+            const titulos = { dashboard: 'Dashboard', pedidos: 'Pedidos', produtos: 'Produtos' };
+            document.getElementById('admin-titulo-pagina').textContent = titulos[tab] || 'Admin';
+        }
+
+        function atualizarRelogio() {
+            const agora = new Date();
+            document.getElementById('admin-data-hora').textContent = agora.toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        // =============================================
+        // CARREGAR PEDIDOS DO SUPABASE
+        // =============================================
+        async function carregarPedidos() {
+            const container = document.getElementById('tabela-pedidos');
+            container.innerHTML = '<p class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando...</p>';
+
+            try {
+                const resp = await fetch('/api/admin/pedidos', {
+                    headers: { 'Authorization': 'Bearer ' + _adminToken }
+                });
+                const data = await resp.json();
+
+                if (data.error) {
+                    container.innerHTML = `<p class="text-red-500 text-center py-4">${data.error}</p>`;
+                    return;
+                }
+
+                if (!data.pedidos || data.pedidos.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum pedido encontrado ainda.</p>';
+                    return;
+                }
+
+                const statusCores = {
+                    pendente: 'bg-yellow-100 text-yellow-700',
+                    pago: 'bg-green-100 text-green-700',
+                    preparando: 'bg-blue-100 text-blue-700',
+                    enviado: 'bg-purple-100 text-purple-700',
+                    entregue: 'bg-gray-100 text-gray-700',
+                    cancelado: 'bg-red-100 text-red-700'
+                };
+
+                let html = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Pedido</th>
+                                    <th class="py-3 px-4">Cliente</th>
+                                    <th class="py-3 px-4">Cidade</th>
+                                    <th class="py-3 px-4">Total</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Data</th>
+                                    <th class="py-3 px-4">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                `;
+
+                data.pedidos.forEach(p => {
+                    const corStatus = statusCores[p.status] || 'bg-gray-100 text-gray-500';
+                    const dataFormatada = new Date(p.created_at).toLocaleDateString('pt-BR');
+
+                    html += `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-3 px-4 font-bold text-brand">#${p.id}</td>
+                            <td class="py-3 px-4">${p.cliente_nome || '—'}</td>
+                            <td class="py-3 px-4 text-gray-500">${p.endereco_cidade || '—'}/${p.endereco_estado || ''}</td>
+                            <td class="py-3 px-4 font-bold">R$ ${(p.total || 0).toFixed(2).replace('.', ',')}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2 py-1 rounded-full text-xs font-bold ${corStatus}">${p.status}</span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-400">${dataFormatada}</td>
+                            <td class="py-3 px-4">
+                                <button onclick="verDetalhesPedido(${p.id})" class="text-brand hover:text-brand-dark text-xs font-bold">
+                                    <i class="fas fa-eye mr-1"></i> Ver
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<p class="text-red-500 text-center py-4">Erro de conexão: ${err.message}</p>`;
+            }
+        }
+
+        function verDetalhesPedido(id) {
+            alert('Detalhes do pedido #' + id + '\n(Em breve: modal com todos os dados do cliente e itens)');
+        }
+
+        function abrirFormProduto() {
+            alert('Formulário de novo produto\n(Em breve: campos para nome, preço, fotos e categorias)');
+        }
+    </script>
+
+</body>
+
+</html>
