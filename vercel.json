@@ -16,12 +16,27 @@
             "permanent": false
         },
         {
+            "source": "/produtos.html",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
             "source": "/produto-detalhe",
             "destination": "/manutencao.html",
             "permanent": false
         },
         {
+            "source": "/produto-detalhe.html",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
             "source": "/checkout",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
+            "source": "/checkout.html",
             "destination": "/manutencao.html",
             "permanent": false
         }
