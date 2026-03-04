@@ -604,12 +604,16 @@ window.adicionarItemAoCarrinho = function (idProduto, diretoProPagamento) {
     const produtoEncontrado = _produtosCarregados.find(p => String(p.id) === String(idProduto));
     if (!produtoEncontrado) return;
 
-    // VALIDAÇÃO OBRIGATÓRIA: Se não escolheu tamanho, TRAVA
-    if (!_tamanhoSelecionado) {
+    // Verifica se o produto TEM tamanhos cadastrados
+    const temTamanhos = (produtoEncontrado.tamanhos || []).length > 0;
+
+    // VALIDAÇÃO: Se tem tamanhos cadastrados e o cliente não escolheu, TRAVA
+    if (temTamanhos && !_tamanhoSelecionado) {
         const aviso = document.getElementById('aviso-tamanho');
-        if (aviso) {
-            aviso.classList.remove('hidden');
-            document.getElementById('seletor-tamanhos').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (aviso) aviso.classList.remove('hidden');
+        const seletorTam = document.getElementById('seletor-tamanhos');
+        if (seletorTam) {
+            seletorTam.scrollIntoView({ behavior: 'smooth', block: 'center' });
             document.querySelectorAll('.btn-tam').forEach(b => {
                 b.classList.add('animate-pulse');
                 setTimeout(() => b.classList.remove('animate-pulse'), 1500);
@@ -618,7 +622,12 @@ window.adicionarItemAoCarrinho = function (idProduto, diretoProPagamento) {
         return; // PARA TUDO!
     }
 
-    let corFinal = _corSelecionada || produtoEncontrado.cores[0].nome;
+    // Cor: pega a selecionada, ou a primeira cadastrada, ou "Única"
+    const coresArr = produtoEncontrado.cores || [];
+    let corFinal = _corSelecionada || (coresArr.length > 0 ? coresArr[0].nome : 'Única');
+
+    // Tamanho: pega o selecionado ou "Único" se não tem tamanhos
+    let tamanhoFinal = _tamanhoSelecionado || 'Único';
 
     let listaCarrinhoAtual = JSON.parse(localStorage.getItem('bitpe_carrinho')) || [];
 
@@ -626,7 +635,7 @@ window.adicionarItemAoCarrinho = function (idProduto, diretoProPagamento) {
         idArrayGerado: Date.now(),
         produtoId: produtoEncontrado.id,
         cor: corFinal,
-        tamanho: _tamanhoSelecionado,
+        tamanho: tamanhoFinal,
         qtd: 1
     });
 
