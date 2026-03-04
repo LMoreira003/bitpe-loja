@@ -92,13 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await resp.json();
         if (data.produtos && data.produtos.length > 0) {
             _produtosCarregados = data.produtos;
-        } else {
-            // Fallback: usa o db.js local se a API voltar vazia
-            _produtosCarregados = (typeof bancoDeProdutos !== 'undefined') ? bancoDeProdutos : [];
         }
     } catch (e) {
-        // Se a API falhar (sem internet, etc), usa o db.js local
-        _produtosCarregados = (typeof bancoDeProdutos !== 'undefined') ? bancoDeProdutos : [];
+        console.error("Erro ao carregar produtos:", e);
     }
 
     // Renderiza vitrines com os dados carregados

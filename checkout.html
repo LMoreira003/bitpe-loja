@@ -322,7 +322,7 @@
         let _freteEscolhido = false;
 
         // Renderizar Resumo do Checkout
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const listaCarrinho = JSON.parse(localStorage.getItem('bitpe_carrinho')) || [];
 
             if (listaCarrinho.length === 0) {
@@ -331,10 +331,22 @@
             }
 
             const containerProdutos = document.getElementById('checkout-lista-produtos');
+            containerProdutos.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-brand text-2xl"></i><p class="text-xs mt-2 text-gray-500">Carregando itens...</p></div>';
+
+            let produtosDaApi = [];
+            try {
+                const resp = await fetch('/api/produtos');
+                const data = await resp.json();
+                produtosDaApi = data.produtos || [];
+            } catch (e) { console.error("Erro ao ler Supabase:", e); }
+
+            // Salva global pra acessar no payload
+            window._produtosAPI = produtosDaApi;
+
             let htmlProdutos = '';
 
             listaCarrinho.forEach(item => {
-                const prod = bancoDeProdutos.find(p => String(p.id) === String(item.produtoId));
+                const prod = produtosDaApi.find(p => String(p.id) === String(item.produtoId));
                 if (prod) {
                     _subtotalCheckout += prod.precoAtual * item.qtd;
 
@@ -574,7 +586,7 @@
 
             // Monta o array de produtos com preço para a API
             const produtosComPreco = itensCarrinho.map(item => {
-                const prodReal = bancoDeProdutos.find(p => String(p.id) === String(item.produtoId));
+                const prodReal = (window._produtosAPI || []).find(p => String(p.id) === String(item.produtoId));
                 return {
                     id: item.produtoId,
                     nome: prodReal ? prodReal.nome : 'Produto Genérico',
