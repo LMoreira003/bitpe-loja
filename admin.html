@@ -234,18 +234,40 @@
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Imagem Principal (caminho)</label>
-                    <input type="text" id="prod-img"
-                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                        placeholder="assets/img/produtos/nome-do-produto.png">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Imagem Principal</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="prod-img"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="Link ou clique na nuvem ->">
+                        <label
+                            class="bg-brand text-white px-3 py-2 rounded-lg cursor-pointer hover:bg-brand-dark flex-shrink-0 flex items-center justify-center transition-colors shadow-sm"
+                            title="Fazer Upload">
+                            <i class="fas fa-cloud-upload-alt relative"><span
+                                    class="absolute -top-1 -right-2 flex h-2 w-2"><span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span><span
+                                        class="relative inline-flex rounded-full h-2 w-2 bg-white"></span></span></i>
+                            <input type="file" id="prod-img-upload" accept="image/*" class="hidden"
+                                onchange="uploadFoto(this, 'prod-img')">
+                        </label>
+                    </div>
+                    <div id="upload-feedback-prod-img" class="text-xs font-bold mt-1 text-brand hidden"></div>
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Galeria (caminhos separados por
-                        vírgula)</label>
-                    <input type="text" id="prod-galeria"
-                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                        placeholder="assets/img/produtos/foto1.png, assets/img/produtos/foto2.png">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Galeria (Fotos Extras)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="prod-galeria"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="Múltiplos uploads suportados ->">
+                        <label
+                            class="bg-brand text-white px-3 py-2 rounded-lg cursor-pointer hover:bg-brand-dark flex-shrink-0 flex items-center justify-center transition-colors shadow-sm"
+                            title="Fazer Upload Múltiplo">
+                            <i class="fas fa-images"></i>
+                            <input type="file" id="prod-img-galeria-upload" accept="image/*" multiple class="hidden"
+                                onchange="uploadFotosMulti(this, 'prod-galeria')">
+                        </label>
+                    </div>
+                    <div id="upload-feedback-prod-galeria" class="text-xs font-bold mt-1 text-brand hidden"></div>
                 </div>
 
                 <div>
@@ -313,11 +335,18 @@
 
     <script>
         // ================================================
-        // SUPABASE CLIENT (browser-side com Auth)
+        // SUPABASE CLIENTS (browser-side)
         // ================================================
+
+        // 1. Cliente Principal (Banco de Dados e Auth)
         const SB_URL = 'https://ebtoekllhsroqorylull.supabase.co';
         const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidG9la2xsaHNyb3FvcnlsdWxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDA0MTMsImV4cCI6MjA4ODIxNjQxM30.nabg3Cnomu0xcfL3nJe-QwnWUPPpx2EbhacUlttB_Ak';
         const sb = supabase.createClient(SB_URL, SB_ANON);
+
+        // 2. Cliente Secundário ("O Firebase Killer" para Armazenamento de Imagens)
+        const SB_FOTOS_URL = 'https://wmgmlmfwkyqbhfracfth.supabase.co';
+        const SB_FOTOS_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZ21sbWZ3a3lxYmhmcmFjZnRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDMxNjQsImV4cCI6MjA4ODIxOTE2NH0.0WJym1nuysFLwECrR_XX7PfDhGN-9PHWMBoMY9VXIRs';
+        const sbFotos = supabase.createClient(SB_FOTOS_URL, SB_FOTOS_ANON);
 
         // ================================================
         // AUTH — Login/Logout com Supabase Auth
@@ -622,6 +651,60 @@
             okEl.textContent = editId ? 'Produto atualizado!' : 'Produto cadastrado!';
             okEl.classList.remove('hidden');
             setTimeout(() => { fecharModal(); loadProdutos(); }, 800);
+        }
+
+        // ================================================
+        // UPLOAD DE FOTOS PARA O STORAGE (SUPABASE SECUNDÁRIO)
+        // ================================================
+        async function uploadFoto(inputObj, targetId) {
+            const file = inputObj.files[0];
+            if (!file) return;
+
+            const feedback = document.getElementById(`upload-feedback-${targetId}`);
+            feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subindo foto pro Storage...';
+            feedback.classList.remove('hidden');
+
+            const ext = file.name.split('.').pop();
+            const fileName = `ft_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+
+            // Usa o supabase secundário (sbFotos) para o upload
+            const { data, error } = await sbFotos.storage.from('produtos').upload(fileName, file);
+
+            if (error) {
+                feedback.innerHTML = `<span class="text-red-500"><i class="fas fa-exclamation-circle"></i> Erro de upload: ${error.message}</span>`;
+                return;
+            }
+
+            const publicUrl = sbFotos.storage.from('produtos').getPublicUrl(fileName).data.publicUrl;
+            document.getElementById(targetId).value = publicUrl;
+            feedback.innerHTML = '<span class="text-green-500"><i class="fas fa-check-circle"></i> Upload concluído!</span>';
+        }
+
+        async function uploadFotosMulti(inputObj, targetId) {
+            const files = Array.from(inputObj.files);
+            if (files.length === 0) return;
+
+            const feedback = document.getElementById(`upload-feedback-${targetId}`);
+            feedback.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subindo ${files.length} foto(s)...`;
+            feedback.classList.remove('hidden');
+
+            let urls = [];
+            for (let file of files) {
+                const ext = file.name.split('.').pop();
+                const fileName = `gal_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+                const { data, error } = await sbFotos.storage.from('produtos').upload(fileName, file);
+
+                if (!error) {
+                    const publicUrl = sbFotos.storage.from('produtos').getPublicUrl(fileName).data.publicUrl;
+                    urls.push(publicUrl);
+                }
+            }
+
+            const campo = document.getElementById(targetId);
+            const atuais = campo.value ? campo.value.split(',').map(s => s.trim()).filter(Boolean) : [];
+            campo.value = atuais.concat(urls).join(', ');
+
+            feedback.innerHTML = `<span class="text-green-500"><i class="fas fa-check-circle"></i> ${urls.length} foto(s) enviadas!</span>`;
         }
 
         function fecharModal() {
