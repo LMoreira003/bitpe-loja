@@ -11,18 +11,13 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap"
         rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        brand: { DEFAULT: '#7c3aed', dark: '#5b21b6', accent: '#facc15' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Oswald', 'sans-serif'],
-                    }
+                    colors: { brand: { DEFAULT: '#7c3aed', dark: '#5b21b6' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Oswald', 'sans-serif'] }
                 }
             }
         }
@@ -36,39 +31,36 @@
             font-family: 'Oswald', sans-serif;
             text-transform: uppercase;
         }
+
+        .modal-bg {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-    <!-- TELA DE LOGIN (limpa, sem chamar atenção) -->
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-gray-200">
             <div class="text-center mb-8">
                 <img src="logo.png" alt="Bitpe" class="h-10 mx-auto mb-6">
             </div>
-
-            <div class="space-y-4">
-                <div>
-                    <div class="relative">
-                        <input type="password" id="admin-senha" placeholder="Senha"
-                            class="w-full border-2 border-gray-200 rounded-lg py-3 px-4 pr-12 focus:outline-none focus:border-brand transition-colors text-base"
-                            onkeydown="if(event.key==='Enter') loginAdmin()">
-                        <i class="fas fa-lock absolute right-4 top-4 text-gray-300 text-sm"></i>
-                    </div>
-                </div>
-
-                <button onclick="loginAdmin()"
+            <div class="space-y-3">
+                <input type="email" id="login-email" placeholder="E-mail"
+                    class="w-full border-2 border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:border-brand transition-colors text-sm"
+                    onkeydown="if(event.key==='Enter') document.getElementById('login-senha').focus()">
+                <input type="password" id="login-senha" placeholder="Senha"
+                    class="w-full border-2 border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:border-brand transition-colors text-sm"
+                    onkeydown="if(event.key==='Enter') loginAdmin()">
+                <button onclick="loginAdmin()" id="btn-login"
                     class="w-full bg-brand text-white font-bold h-12 rounded-lg tracking-wider hover:bg-brand-dark transition-colors shadow-lg flex items-center justify-center text-sm">
                     Entrar
                 </button>
-
-                <p id="login-erro" class="text-red-500 text-xs font-bold text-center hidden">
-                    <i class="fas fa-exclamation-circle mr-1"></i> Credenciais inválidas.
-                </p>
+                <p id="login-erro" class="text-red-500 text-xs font-bold text-center hidden"></p>
             </div>
-
-            <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+            <div class="mt-6 pt-4 border-t border-gray-100 text-center">
                 <a href="index.html" class="text-gray-400 text-xs hover:text-brand transition-colors">
                     <i class="fas fa-arrow-left mr-1"></i> bitpecalcados.com
                 </a>
@@ -76,162 +68,115 @@
         </div>
     </div>
 
-    <!-- PAINEL (Aparece após login) -->
+    <!-- PAINEL -->
     <div id="painel-admin" class="hidden">
         <div class="flex min-h-screen">
-
-            <!-- BARRA LATERAL -->
-            <aside class="w-60 bg-gray-900 text-white flex-shrink-0 flex flex-col fixed h-full z-40">
+            <!-- SIDEBAR -->
+            <aside class="w-56 bg-gray-900 text-white flex-shrink-0 flex flex-col fixed h-full z-40">
                 <div class="p-5 border-b border-gray-800">
                     <img src="logo.png" alt="Bitpe" class="h-7 brightness-0 invert opacity-80">
                 </div>
-
-                <nav class="flex-grow py-4">
-                    <button onclick="navegarAdmin('dashboard')"
-                        class="admin-nav-btn w-full text-left px-5 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-400 hover:text-white"
+                <nav class="flex-grow py-3">
+                    <button onclick="navTab('dashboard')"
+                        class="nav-btn w-full text-left px-5 py-2.5 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm text-gray-400 hover:text-white"
                         data-tab="dashboard">
-                        <i class="fas fa-chart-pie w-5 text-center text-sm"></i> Visão Geral
+                        <i class="fas fa-chart-pie w-4 text-center text-xs"></i> Visão Geral
                     </button>
-                    <button onclick="navegarAdmin('pedidos')"
-                        class="admin-nav-btn w-full text-left px-5 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-400 hover:text-white"
+                    <button onclick="navTab('pedidos')"
+                        class="nav-btn w-full text-left px-5 py-2.5 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm text-gray-400 hover:text-white"
                         data-tab="pedidos">
-                        <i class="fas fa-box w-5 text-center text-sm"></i> Pedidos
+                        <i class="fas fa-box w-4 text-center text-xs"></i> Pedidos
                     </button>
-                    <button onclick="navegarAdmin('produtos')"
-                        class="admin-nav-btn w-full text-left px-5 py-3 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm font-medium text-gray-400 hover:text-white"
+                    <button onclick="navTab('produtos')"
+                        class="nav-btn w-full text-left px-5 py-2.5 flex items-center gap-3 hover:bg-gray-800 transition-colors text-sm text-gray-400 hover:text-white"
                         data-tab="produtos">
-                        <i class="fas fa-tags w-5 text-center text-sm"></i> Produtos
+                        <i class="fas fa-tags w-4 text-center text-xs"></i> Produtos
                     </button>
                 </nav>
-
                 <div class="p-4 border-t border-gray-800">
+                    <p class="text-gray-600 text-[10px] mb-2 truncate" id="user-email"></p>
                     <button onclick="logoutAdmin()"
-                        class="w-full text-left px-2 py-2 flex items-center gap-3 text-gray-500 hover:text-red-400 text-xs font-medium transition-colors">
-                        <i class="fas fa-sign-out-alt w-5 text-center"></i> Encerrar sessão
+                        class="w-full text-left px-1 py-1 flex items-center gap-2 text-gray-500 hover:text-red-400 text-xs transition-colors">
+                        <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </div>
             </aside>
 
-            <!-- CONTEÚDO PRINCIPAL -->
-            <main class="flex-grow ml-60">
-
-                <!-- HEADER -->
+            <!-- CONTEÚDO -->
+            <main class="flex-grow ml-56">
                 <header
-                    class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30">
-                    <div>
-                        <h1 id="admin-titulo-pagina" class="font-display text-lg font-bold text-gray-900">Visão Geral
-                        </h1>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-xs text-gray-400" id="admin-data-hora"></span>
-                    </div>
+                    class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+                    <h1 id="titulo-pag" class="font-display text-lg font-bold text-gray-900">Visão Geral</h1>
+                    <span class="text-[11px] text-gray-400" id="relogio"></span>
                 </header>
 
-                <!-- ÁREA DE CONTEÚDO -->
-                <div class="p-8" id="admin-conteudo">
+                <div class="p-6" id="area-conteudo">
 
-                    <!-- DASHBOARD -->
+                    <!-- TAB: DASHBOARD -->
                     <div id="tab-dashboard">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-                            <div
-                                class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span
-                                        class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Hoje</span>
-                                    <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-shopping-cart text-blue-400 text-xs"></i>
-                                    </div>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="dash-pedidos-hoje">0</p>
-                                <p class="text-[10px] text-gray-400 mt-1">pedidos</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-white rounded-xl border border-gray-100 p-4">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Hoje</span>
+                                <p class="text-2xl font-bold mt-1" id="d-hoje">0</p>
+                                <span class="text-[10px] text-gray-400">pedidos</span>
                             </div>
-                            <div
-                                class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span
-                                        class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Faturamento</span>
-                                    <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-dollar-sign text-green-400 text-xs"></i>
-                                    </div>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="dash-faturamento">R$ 0</p>
-                                <p class="text-[10px] text-gray-400 mt-1">total aprovado</p>
+                            <div class="bg-white rounded-xl border border-gray-100 p-4">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Faturamento</span>
+                                <p class="text-2xl font-bold mt-1" id="d-fat">R$ 0</p>
+                                <span class="text-[10px] text-gray-400">aprovado</span>
                             </div>
-                            <div
-                                class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">A
-                                        Despachar</span>
-                                    <div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-truck text-orange-400 text-xs"></i>
-                                    </div>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="dash-despachar">0</p>
-                                <p class="text-[10px] text-gray-400 mt-1">aguardando envio</p>
+                            <div class="bg-white rounded-xl border border-gray-100 p-4">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Despachar</span>
+                                <p class="text-2xl font-bold mt-1" id="d-desp">0</p>
+                                <span class="text-[10px] text-gray-400">aguardando</span>
                             </div>
-                            <div
-                                class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span
-                                        class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Produtos</span>
-                                    <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-tags text-purple-400 text-xs"></i>
-                                    </div>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="dash-total-produtos">0</p>
-                                <p class="text-[10px] text-gray-400 mt-1">no catálogo</p>
+                            <div class="bg-white rounded-xl border border-gray-100 p-4">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Produtos</span>
+                                <p class="text-2xl font-bold mt-1" id="d-prod">0</p>
+                                <span class="text-[10px] text-gray-400">ativos</span>
                             </div>
                         </div>
-
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-sm text-gray-700">Últimos Pedidos</h3>
-                                <button onclick="navegarAdmin('pedidos')"
+                        <div class="bg-white rounded-xl border border-gray-100 p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-bold text-gray-700">Últimos Pedidos</span>
+                                <button onclick="navTab('pedidos')"
                                     class="text-brand text-xs font-bold hover:underline">Ver todos →</button>
                             </div>
-                            <div id="dash-ultimos-pedidos" class="text-gray-400 text-sm">
-                                <div class="text-center py-12">
-                                    <i class="fas fa-inbox text-3xl text-gray-200 mb-3"></i>
-                                    <p class="text-gray-400 text-sm">Nenhum pedido ainda</p>
-                                </div>
+                            <div id="d-ultimos" class="text-center py-10 text-gray-300"><i
+                                    class="fas fa-inbox text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-400">Nenhum pedido</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PEDIDOS -->
+                    <!-- TAB: PEDIDOS -->
                     <div id="tab-pedidos" class="hidden">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                                <h3 class="font-bold text-sm text-gray-700">Todos os Pedidos</h3>
-                                <button onclick="carregarPedidos()"
-                                    class="bg-gray-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-700 transition-colors">
-                                    <i class="fas fa-sync-alt mr-2"></i> Atualizar
-                                </button>
+                        <div class="bg-white rounded-xl border border-gray-100">
+                            <div class="p-5 border-b border-gray-50 flex items-center justify-between">
+                                <span class="text-sm font-bold text-gray-700">Pedidos</span>
+                                <button onclick="loadPedidos()"
+                                    class="bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-700"><i
+                                        class="fas fa-sync-alt mr-1"></i> Atualizar</button>
                             </div>
-                            <div id="tabela-pedidos" class="p-6">
-                                <div class="text-center py-12">
-                                    <i class="fas fa-inbox text-3xl text-gray-200 mb-3"></i>
-                                    <p class="text-gray-400 text-sm">Nenhum pedido registrado</p>
-                                </div>
-                            </div>
+                            <div id="lista-pedidos" class="p-5"></div>
                         </div>
                     </div>
 
-                    <!-- PRODUTOS -->
+                    <!-- TAB: PRODUTOS -->
                     <div id="tab-produtos" class="hidden">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                                <h3 class="font-bold text-sm text-gray-700">Catálogo</h3>
+                        <div class="bg-white rounded-xl border border-gray-100">
+                            <div class="p-5 border-b border-gray-50 flex items-center justify-between">
+                                <span class="text-sm font-bold text-gray-700">Catálogo</span>
                                 <div class="flex gap-2">
-                                    <button onclick="carregarProdutosAdmin()"
-                                        class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors">
-                                        <i class="fas fa-sync-alt mr-1"></i> Atualizar
-                                    </button>
+                                    <button onclick="loadProdutos()"
+                                        class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-200"><i
+                                            class="fas fa-sync-alt mr-1"></i></button>
+                                    <button onclick="abrirFormProduto()"
+                                        class="bg-brand text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-dark"><i
+                                            class="fas fa-plus mr-1"></i> Novo Produto</button>
                                 </div>
                             </div>
-                            <div id="tabela-produtos" class="p-6">
-                                <p class="text-gray-400 text-sm text-center py-8">Carregando...</p>
-                            </div>
+                            <div id="lista-produtos" class="p-5"></div>
                         </div>
                     </div>
 
@@ -240,344 +185,449 @@
         </div>
     </div>
 
+    <!-- MODAL: FORMULÁRIO DE PRODUTO -->
+    <div id="modal-produto"
+        class="fixed inset-0 z-50 hidden modal-bg flex items-start justify-center pt-10 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl m-4 mb-10">
+            <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="font-display text-lg font-bold" id="modal-titulo">Novo Produto</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-red-500 text-xl"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div class="p-5 space-y-4" id="form-produto">
+                <input type="hidden" id="prod-id">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Nome *</label>
+                        <input type="text" id="prod-nome"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="Babuche Homem Aranha">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
+                        <input type="text" id="prod-cat"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="INFANTIL">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Preço Atual *</label>
+                        <input type="number" step="0.01" id="prod-preco"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="149.90">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Preço Antigo</label>
+                        <input type="number" step="0.01" id="prod-preco-antigo"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="189.90">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Etiqueta</label>
+                        <input type="text" id="prod-etiqueta"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                            placeholder="LANÇAMENTO">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Imagem Principal (caminho)</label>
+                    <input type="text" id="prod-img"
+                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                        placeholder="assets/img/produtos/nome-do-produto.png">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Galeria (caminhos separados por
+                        vírgula)</label>
+                    <input type="text" id="prod-galeria"
+                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
+                        placeholder="assets/img/produtos/foto1.png, assets/img/produtos/foto2.png">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Descrição</label>
+                    <textarea id="prod-desc" rows="3"
+                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand resize-none"
+                        placeholder="Descrição detalhada do produto..."></textarea>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Benefícios (um por linha)</label>
+                    <textarea id="prod-benef" rows="3"
+                        class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand resize-none"
+                        placeholder="Resistente a odores&#10;Solado antiderrapante&#10;Fácil de limpar"></textarea>
+                </div>
+
+                <!-- CORES -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Cores</label>
+                        <button onclick="addCor()" class="text-brand text-xs font-bold hover:underline"><i
+                                class="fas fa-plus mr-1"></i>Adicionar</button>
+                    </div>
+                    <div id="cores-container" class="space-y-2"></div>
+                </div>
+
+                <!-- TAMANHOS -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Tamanhos</label>
+                        <button onclick="addTamanho()" class="text-brand text-xs font-bold hover:underline"><i
+                                class="fas fa-plus mr-1"></i>Adicionar</button>
+                    </div>
+                    <div id="tamanhos-container" class="space-y-2"></div>
+                </div>
+
+                <!-- TOGGLES -->
+                <div class="flex gap-6 pt-2">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="prod-ativo" checked class="w-4 h-4 accent-brand"> Ativo no site
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="prod-esgotado" class="w-4 h-4 accent-red-500"> Esgotado
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="prod-destaque" class="w-4 h-4 accent-brand"> Destaque
+                    </label>
+                </div>
+
+                <div class="flex gap-3 pt-3">
+                    <button onclick="salvarProduto()"
+                        class="flex-grow bg-brand text-white font-bold py-3 rounded-lg text-sm hover:bg-brand-dark transition-colors">
+                        <i class="fas fa-save mr-2"></i> Salvar Produto
+                    </button>
+                    <button onclick="fecharModal()"
+                        class="px-6 bg-gray-100 text-gray-600 font-bold py-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                        Cancelar
+                    </button>
+                </div>
+                <p id="form-erro" class="text-red-500 text-xs font-bold text-center hidden"></p>
+                <p id="form-ok" class="text-green-500 text-xs font-bold text-center hidden"></p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // =============================================
-        // CONFIGURAÇÃO DO SUPABASE (direto no front do admin)
-        // =============================================
-        const SUPABASE_URL = 'https://ebtoekllhsroqorylull.supabase.co';
-        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidG9la2xsaHNyb3FvcnlsdWxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDA0MTMsImV4cCI6MjA4ODIxNjQxM30.nabg3Cnomu0xcfL3nJe-QwnWUPPpx2EbhacUlttB_Ak';
+        // ================================================
+        // SUPABASE CLIENT (browser-side com Auth)
+        // ================================================
+        const SB_URL = 'https://ebtoekllhsroqorylull.supabase.co';
+        const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidG9la2xsaHNyb3FvcnlsdWxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDA0MTMsImV4cCI6MjA4ODIxNjQxM30.nabg3Cnomu0xcfL3nJe-QwnWUPPpx2EbhacUlttB_Ak';
+        const sb = supabase.createClient(SB_URL, SB_ANON);
 
-        // Helper para chamadas ao Supabase REST API
-        async function supaFetch(tabela, query = '') {
-            const resp = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}${query}`, {
-                headers: {
-                    'apikey': SUPABASE_ANON,
-                    'Authorization': 'Bearer ' + SUPABASE_ANON
-                }
-            });
-            return resp.json();
-        }
+        // ================================================
+        // AUTH — Login/Logout com Supabase Auth
+        // ================================================
+        async function loginAdmin() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-senha').value;
+            const erroEl = document.getElementById('login-erro');
+            erroEl.classList.add('hidden');
 
-        // =============================================
-        // LOGIN
-        // =============================================
-        let _adminToken = '';
+            if (!email || !senha) { erroEl.textContent = 'Preencha e-mail e senha.'; erroEl.classList.remove('hidden'); return; }
 
-        function loginAdmin() {
-            const senha = document.getElementById('admin-senha').value.trim();
-            if (!senha) return;
+            document.getElementById('btn-login').disabled = true;
+            document.getElementById('btn-login').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Entrando...';
 
-            _adminToken = senha;
+            const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
 
-            fetch('/api/admin/pedidos', {
-                headers: { 'Authorization': 'Bearer ' + _adminToken }
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.error) {
-                        document.getElementById('login-erro').classList.remove('hidden');
-                        _adminToken = '';
-                        return;
-                    }
-                    // Login OK
-                    document.getElementById('tela-login').classList.add('hidden');
-                    document.getElementById('painel-admin').classList.remove('hidden');
-                    document.getElementById('login-erro').classList.add('hidden');
-                    navegarAdmin('dashboard');
-                    carregarDashboard(data.pedidos || []);
-                    atualizarRelogio();
-                    setInterval(atualizarRelogio, 60000);
-                })
-                .catch(() => {
-                    document.getElementById('login-erro').classList.remove('hidden');
-                    _adminToken = '';
-                });
-        }
-
-        function logoutAdmin() {
-            _adminToken = '';
-            document.getElementById('painel-admin').classList.add('hidden');
-            document.getElementById('tela-login').classList.remove('hidden');
-            document.getElementById('admin-senha').value = '';
-        }
-
-        // =============================================
-        // DASHBOARD — carrega métricas reais
-        // =============================================
-        async function carregarDashboard(pedidos) {
-            // Pedidos de hoje
-            const hoje = new Date().toISOString().split('T')[0];
-            const pedidosHoje = pedidos.filter(p => p.created_at && p.created_at.startsWith(hoje));
-            document.getElementById('dash-pedidos-hoje').textContent = pedidosHoje.length;
-
-            // Faturamento (pedidos com status pago, preparando, enviado ou entregue)
-            const statusPagos = ['pago', 'preparando', 'enviado', 'entregue'];
-            const faturamento = pedidos
-                .filter(p => statusPagos.includes(p.status))
-                .reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
-            document.getElementById('dash-faturamento').textContent = `R$ ${faturamento.toFixed(2).replace('.', ',')}`;
-
-            // A despachar (pagos mas não enviados)
-            const aDespachar = pedidos.filter(p => p.status === 'pago' || p.status === 'preparando').length;
-            document.getElementById('dash-despachar').textContent = aDespachar;
-
-            // Total de produtos
-            try {
-                const produtos = await supaFetch('produtos', '?select=id&ativo=eq.true');
-                document.getElementById('dash-total-produtos').textContent = Array.isArray(produtos) ? produtos.length : 0;
-            } catch (e) {
-                document.getElementById('dash-total-produtos').textContent = '—';
-            }
-
-            // Últimos pedidos na dashboard
-            const container = document.getElementById('dash-ultimos-pedidos');
-            if (pedidos.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-inbox text-3xl text-gray-200 mb-3"></i>
-                        <p class="text-gray-400 text-sm">Nenhum pedido ainda</p>
-                    </div>`;
+            if (error) {
+                erroEl.textContent = 'E-mail ou senha incorretos.';
+                erroEl.classList.remove('hidden');
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerHTML = 'Entrar';
                 return;
             }
 
-            const statusCores = {
-                pendente: 'bg-yellow-100 text-yellow-700',
-                pago: 'bg-green-100 text-green-700',
-                preparando: 'bg-blue-100 text-blue-700',
-                enviado: 'bg-purple-100 text-purple-700',
-                entregue: 'bg-gray-100 text-gray-600',
-                cancelado: 'bg-red-100 text-red-700'
+            entrarNoPainel(data.user);
+        }
+
+        function entrarNoPainel(user) {
+            document.getElementById('tela-login').classList.add('hidden');
+            document.getElementById('painel-admin').classList.remove('hidden');
+            document.getElementById('user-email').textContent = user.email;
+            navTab('dashboard');
+            setInterval(tick, 60000); tick();
+        }
+
+        async function logoutAdmin() {
+            await sb.auth.signOut();
+            document.getElementById('painel-admin').classList.add('hidden');
+            document.getElementById('tela-login').classList.remove('hidden');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-senha').value = '';
+            document.getElementById('btn-login').disabled = false;
+            document.getElementById('btn-login').innerHTML = 'Entrar';
+        }
+
+        // Checa sessão existente ao abrir a página
+        sb.auth.getSession().then(({ data }) => {
+            if (data.session) entrarNoPainel(data.session.user);
+        });
+
+        function tick() {
+            document.getElementById('relogio').textContent = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ================================================
+        // NAVEGAÇÃO
+        // ================================================
+        function navTab(t) {
+            document.querySelectorAll('[id^="tab-"]').forEach(e => e.classList.add('hidden'));
+            const el = document.getElementById('tab-' + t);
+            if (el) el.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-gray-800', 'text-white', 'border-l-4', 'border-brand'); b.classList.add('text-gray-400'); });
+            const btn = document.querySelector(`[data-tab="${t}"]`);
+            if (btn) { btn.classList.add('bg-gray-800', 'text-white', 'border-l-4', 'border-brand'); btn.classList.remove('text-gray-400'); }
+            document.getElementById('titulo-pag').textContent = { dashboard: 'Visão Geral', pedidos: 'Pedidos', produtos: 'Produtos' }[t] || '';
+            if (t === 'dashboard') loadDashboard();
+            if (t === 'pedidos') loadPedidos();
+            if (t === 'produtos') loadProdutos();
+        }
+
+        // ================================================
+        // DASHBOARD
+        // ================================================
+        async function loadDashboard() {
+            const { data: pedidos } = await sb.from('pedidos').select('*').order('created_at', { ascending: false });
+            const { data: prods } = await sb.from('produtos').select('id').eq('ativo', true);
+            const lista = pedidos || [];
+            const hoje = new Date().toISOString().split('T')[0];
+
+            document.getElementById('d-hoje').textContent = lista.filter(p => p.created_at?.startsWith(hoje)).length;
+            const pagos = ['pago', 'preparando', 'enviado', 'entregue'];
+            const fat = lista.filter(p => pagos.includes(p.status)).reduce((a, p) => a + (parseFloat(p.total) || 0), 0);
+            document.getElementById('d-fat').textContent = `R$ ${fat.toFixed(2).replace('.', ',')}`;
+            document.getElementById('d-desp').textContent = lista.filter(p => p.status === 'pago' || p.status === 'preparando').length;
+            document.getElementById('d-prod').textContent = (prods || []).length;
+
+            const ct = document.getElementById('d-ultimos');
+            if (lista.length === 0) { ct.innerHTML = '<div class="text-center py-10 text-gray-300"><i class="fas fa-inbox text-2xl mb-2"></i><p class="text-sm text-gray-400">Nenhum pedido</p></div>'; return; }
+            const SC = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', preparando: 'bg-blue-100 text-blue-700', enviado: 'bg-purple-100 text-purple-700', entregue: 'bg-gray-100 text-gray-600', cancelado: 'bg-red-100 text-red-700' };
+            let h = '<div class="divide-y divide-gray-50">';
+            lista.slice(0, 5).forEach(p => { h += `<div class="flex items-center justify-between py-2.5"><div class="flex items-center gap-2"><span class="text-xs font-bold text-brand">#${p.id}</span><span class="text-sm">${p.cliente_nome || '—'}</span></div><div class="flex items-center gap-2"><span class="text-sm font-bold">R$ ${(p.total || 0).toFixed(2).replace('.', ',')}</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${SC[p.status] || 'bg-gray-100 text-gray-500'}">${p.status}</span></div></div>`; });
+            h += '</div>'; ct.innerHTML = h;
+        }
+
+        // ================================================
+        // PEDIDOS
+        // ================================================
+        async function loadPedidos() {
+            const ct = document.getElementById('lista-pedidos');
+            ct.innerHTML = '<p class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i></p>';
+            const { data, error } = await sb.from('pedidos').select('*').order('created_at', { ascending: false }).limit(200);
+            if (error) { ct.innerHTML = `<p class="text-red-500 text-center py-4">${error.message}</p>`; return; }
+            if (!data || data.length === 0) { ct.innerHTML = '<div class="text-center py-10 text-gray-300"><i class="fas fa-inbox text-2xl mb-2"></i><p class="text-sm text-gray-400">Nenhum pedido</p></div>'; return; }
+            const SC = { pendente: 'bg-yellow-100 text-yellow-700', pago: 'bg-green-100 text-green-700', preparando: 'bg-blue-100 text-blue-700', enviado: 'bg-purple-100 text-purple-700', entregue: 'bg-gray-100 text-gray-600', cancelado: 'bg-red-100 text-red-700' };
+            let h = `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left"><th class="py-2 px-3">#</th><th class="py-2 px-3">Cliente</th><th class="py-2 px-3">Cidade</th><th class="py-2 px-3">Total</th><th class="py-2 px-3">Status</th><th class="py-2 px-3">Data</th><th class="py-2 px-3">Ações</th></tr></thead><tbody class="divide-y divide-gray-50">`;
+            data.forEach(p => {
+                const dt = new Date(p.created_at).toLocaleDateString('pt-BR');
+                h += `<tr class="hover:bg-gray-50"><td class="py-2 px-3 font-bold text-brand text-xs">${p.id}</td><td class="py-2 px-3">${p.cliente_nome || '—'}</td><td class="py-2 px-3 text-gray-400 text-xs">${p.endereco_cidade || '—'}/${p.endereco_estado || ''}</td><td class="py-2 px-3 font-bold">R$ ${(p.total || 0).toFixed(2).replace('.', ',')}</td><td class="py-2 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${SC[p.status] || ''}">${p.status}</span></td><td class="py-2 px-3 text-gray-400 text-xs">${dt}</td><td class="py-2 px-3"><select onchange="mudarStatus(${p.id},this.value)" class="text-xs border border-gray-200 rounded px-1 py-0.5 focus:outline-none focus:border-brand"><option value="">Alterar...</option><option value="pago">✅ Pago</option><option value="preparando">📦 Preparando</option><option value="enviado">🚚 Enviado</option><option value="entregue">✔️ Entregue</option><option value="cancelado">❌ Cancelado</option></select></td></tr>`;
+            });
+            h += '</tbody></table></div>'; ct.innerHTML = h;
+        }
+
+        async function mudarStatus(id, status) {
+            if (!status) return;
+            const upd = { status };
+            if (status === 'enviado') upd.data_envio = new Date().toISOString();
+            const { error } = await sb.from('pedidos').update(upd).eq('id', id);
+            if (error) alert('Erro: ' + error.message);
+            else loadPedidos();
+        }
+
+        // ================================================
+        // PRODUTOS — Lista
+        // ================================================
+        async function loadProdutos() {
+            const ct = document.getElementById('lista-produtos');
+            ct.innerHTML = '<p class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i></p>';
+            const { data, error } = await sb.from('produtos').select('*').order('id', { ascending: true });
+            if (error) { ct.innerHTML = `<p class="text-red-500 text-center py-4">${error.message}</p>`; return; }
+            if (!data || data.length === 0) { ct.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Nenhum produto. Clique em "Novo Produto".</p>'; return; }
+
+            let h = `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left"><th class="py-2 px-3">ID</th><th class="py-2 px-3">Produto</th><th class="py-2 px-3">Preço</th><th class="py-2 px-3">Estoque</th><th class="py-2 px-3">Ativo</th><th class="py-2 px-3">Ações</th></tr></thead><tbody class="divide-y divide-gray-50">`;
+            data.forEach(p => {
+                const est = p.esgotado ? '<span class="text-[10px] font-bold text-red-500">Esgotado</span>' : '<span class="text-[10px] font-bold text-green-500">Disponível</span>';
+                const at = p.ativo ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="fas fa-minus-circle text-gray-300"></i>';
+                h += `<tr class="hover:bg-gray-50"><td class="py-2 px-3 font-bold text-brand text-xs">${p.id}</td><td class="py-2 px-3"><div class="flex items-center gap-2"><img src="${p.imagem_principal}" class="w-8 h-8 rounded bg-gray-50 object-cover mix-blend-multiply" onerror="this.src='https://placehold.co/32/eee/999?text=?'"><span class="font-bold text-gray-800">${p.nome}</span></div></td><td class="py-2 px-3 font-bold">R$ ${(p.preco_atual || 0).toFixed(2).replace('.', ',')}</td><td class="py-2 px-3">${est}</td><td class="py-2 px-3">${at}</td><td class="py-2 px-3 flex gap-2"><button onclick="editarProduto(${p.id})" class="text-brand hover:text-brand-dark text-xs font-bold"><i class="fas fa-edit"></i></button><button onclick="toggleAtivo(${p.id},${!p.ativo})" class="text-gray-400 hover:text-orange-500 text-xs" title="${p.ativo ? 'Desativar' : 'Ativar'}"><i class="fas fa-power-off"></i></button></td></tr>`;
+            });
+            h += '</tbody></table></div>'; ct.innerHTML = h;
+        }
+
+        async function toggleAtivo(id, novoEstado) {
+            await sb.from('produtos').update({ ativo: novoEstado }).eq('id', id);
+            loadProdutos();
+        }
+
+        // ================================================
+        // PRODUTOS — Formulário (Criar/Editar)
+        // ================================================
+        function abrirFormProduto() {
+            document.getElementById('modal-titulo').textContent = 'Novo Produto';
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-nome').value = '';
+            document.getElementById('prod-cat').value = 'INFANTIL';
+            document.getElementById('prod-preco').value = '';
+            document.getElementById('prod-preco-antigo').value = '';
+            document.getElementById('prod-etiqueta').value = '';
+            document.getElementById('prod-img').value = '';
+            document.getElementById('prod-galeria').value = '';
+            document.getElementById('prod-desc').value = '';
+            document.getElementById('prod-benef').value = '';
+            document.getElementById('prod-ativo').checked = true;
+            document.getElementById('prod-esgotado').checked = false;
+            document.getElementById('prod-destaque').checked = false;
+            document.getElementById('cores-container').innerHTML = '';
+            document.getElementById('tamanhos-container').innerHTML = '';
+            document.getElementById('form-erro').classList.add('hidden');
+            document.getElementById('form-ok').classList.add('hidden');
+            addCor(); // Começa com 1 cor
+            addTamanho(); // Começa com 1 tamanho
+            document.getElementById('modal-produto').classList.remove('hidden');
+        }
+
+        async function editarProduto(id) {
+            const { data: p, error } = await sb.from('produtos').select('*').eq('id', id).single();
+            if (error || !p) { alert('Produto não encontrado.'); return; }
+
+            document.getElementById('modal-titulo').textContent = 'Editar Produto';
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-nome').value = p.nome || '';
+            document.getElementById('prod-cat').value = p.categoria || '';
+            document.getElementById('prod-preco').value = p.preco_atual || '';
+            document.getElementById('prod-preco-antigo').value = p.preco_antigo || '';
+            document.getElementById('prod-etiqueta').value = p.etiqueta || '';
+            document.getElementById('prod-img').value = p.imagem_principal || '';
+            document.getElementById('prod-galeria').value = (p.galeria_imagens || []).join(', ');
+            document.getElementById('prod-desc').value = p.descricao || '';
+            document.getElementById('prod-benef').value = (p.beneficios || []).join('\n');
+            document.getElementById('prod-ativo').checked = p.ativo;
+            document.getElementById('prod-esgotado').checked = p.esgotado;
+            document.getElementById('prod-destaque').checked = p.destaque || false;
+            document.getElementById('form-erro').classList.add('hidden');
+            document.getElementById('form-ok').classList.add('hidden');
+
+            // Preenche cores
+            const cc = document.getElementById('cores-container');
+            cc.innerHTML = '';
+            (p.cores || []).forEach(c => addCor(c.nome, c.classeCss));
+            if ((p.cores || []).length === 0) addCor();
+
+            // Preenche tamanhos
+            const tc = document.getElementById('tamanhos-container');
+            tc.innerHTML = '';
+            (p.tamanhos || []).forEach(t => addTamanho(t.numero, t.disponivel));
+            if ((p.tamanhos || []).length === 0) addTamanho();
+
+            document.getElementById('modal-produto').classList.remove('hidden');
+        }
+
+        function addCor(nome = '', css = '') {
+            const row = document.createElement('div');
+            row.className = 'flex gap-2 items-center';
+            row.innerHTML = `
+        <input type="text" placeholder="Nome (ex: Vermelha)" value="${nome}" class="cor-nome flex-grow border border-gray-200 rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-brand">
+        <input type="text" placeholder="Classe CSS (ex: bg-red-600)" value="${css}" class="cor-css flex-grow border border-gray-200 rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-brand">
+        <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm px-1"><i class="fas fa-trash"></i></button>
+    `;
+            document.getElementById('cores-container').appendChild(row);
+        }
+
+        function addTamanho(num = '', disp = true) {
+            const row = document.createElement('div');
+            row.className = 'flex gap-2 items-center';
+            row.innerHTML = `
+        <input type="text" placeholder="Número (ex: 23/24)" value="${num}" class="tam-num flex-grow border border-gray-200 rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-brand">
+        <label class="flex items-center gap-1 text-xs text-gray-500 whitespace-nowrap"><input type="checkbox" class="tam-disp accent-brand" ${disp ? 'checked' : ''}> Disponível</label>
+        <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm px-1"><i class="fas fa-trash"></i></button>
+    `;
+            document.getElementById('tamanhos-container').appendChild(row);
+        }
+
+        async function salvarProduto() {
+            const erroEl = document.getElementById('form-erro');
+            const okEl = document.getElementById('form-ok');
+            erroEl.classList.add('hidden');
+            okEl.classList.add('hidden');
+
+            const nome = document.getElementById('prod-nome').value.trim();
+            const preco = parseFloat(document.getElementById('prod-preco').value);
+
+            if (!nome || isNaN(preco)) { erroEl.textContent = 'Nome e Preço são obrigatórios.'; erroEl.classList.remove('hidden'); return; }
+
+            // Monta cores
+            const cores = [];
+            document.querySelectorAll('#cores-container > div').forEach(row => {
+                const n = row.querySelector('.cor-nome').value.trim();
+                const c = row.querySelector('.cor-css').value.trim();
+                if (n && c) cores.push({ nome: n, classeCss: c });
+            });
+
+            // Monta tamanhos
+            const tamanhos = [];
+            document.querySelectorAll('#tamanhos-container > div').forEach(row => {
+                const n = row.querySelector('.tam-num').value.trim();
+                const d = row.querySelector('.tam-disp').checked;
+                if (n) tamanhos.push({ numero: n, disponivel: d });
+            });
+
+            // Monta galeria
+            const galeriaStr = document.getElementById('prod-galeria').value;
+            const galeria = galeriaStr ? galeriaStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+            // Monta benefícios
+            const benefStr = document.getElementById('prod-benef').value;
+            const beneficios = benefStr ? benefStr.split('\n').map(s => s.trim()).filter(Boolean) : [];
+
+            const imgPrincipal = document.getElementById('prod-img').value.trim();
+
+            const payload = {
+                nome,
+                categoria: document.getElementById('prod-cat').value.trim() || 'GERAL',
+                preco_atual: preco,
+                preco_antigo: parseFloat(document.getElementById('prod-preco-antigo').value) || null,
+                etiqueta: document.getElementById('prod-etiqueta').value.trim() || null,
+                etiqueta_cor: 'bg-brand',
+                imagem_principal: imgPrincipal || (galeria[0] || ''),
+                galeria_imagens: galeria.length > 0 ? galeria : (imgPrincipal ? [imgPrincipal] : []),
+                descricao: document.getElementById('prod-desc').value.trim(),
+                beneficios,
+                cores,
+                tamanhos,
+                ativo: document.getElementById('prod-ativo').checked,
+                esgotado: document.getElementById('prod-esgotado').checked,
+                destaque: document.getElementById('prod-destaque').checked
             };
 
-            let html = '<div class="divide-y divide-gray-50">';
-            pedidos.slice(0, 5).forEach(p => {
-                const cor = statusCores[p.status] || 'bg-gray-100 text-gray-500';
-                const data = new Date(p.created_at).toLocaleDateString('pt-BR');
-                html += `
-                    <div class="flex items-center justify-between py-3">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-bold text-brand">#${p.id}</span>
-                            <span class="text-sm text-gray-700">${p.cliente_nome || 'Cliente'}</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-gray-900">R$ ${(p.total || 0).toFixed(2).replace('.', ',')}</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cor}">${p.status}</span>
-                        </div>
-                    </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
+            const editId = document.getElementById('prod-id').value;
 
-        // =============================================
-        // NAVEGAÇÃO
-        // =============================================
-        function navegarAdmin(tab) {
-            document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
-            const tabEl = document.getElementById('tab-' + tab);
-            if (tabEl) tabEl.classList.remove('hidden');
-
-            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-                btn.classList.remove('bg-gray-800', 'text-white', 'border-l-4', 'border-brand');
-                btn.classList.add('text-gray-400');
-            });
-            const btnAtivo = document.querySelector(`[data-tab="${tab}"]`);
-            if (btnAtivo) {
-                btnAtivo.classList.add('bg-gray-800', 'text-white', 'border-l-4', 'border-brand');
-                btnAtivo.classList.remove('text-gray-400');
+            let result;
+            if (editId) {
+                result = await sb.from('produtos').update(payload).eq('id', parseInt(editId));
+            } else {
+                result = await sb.from('produtos').insert([payload]);
             }
 
-            const titulos = { dashboard: 'Visão Geral', pedidos: 'Pedidos', produtos: 'Produtos' };
-            document.getElementById('admin-titulo-pagina').textContent = titulos[tab] || '';
-
-            // Auto-carrega dados ao navegar
-            if (tab === 'pedidos') carregarPedidos();
-            if (tab === 'produtos') carregarProdutosAdmin();
-        }
-
-        function atualizarRelogio() {
-            const agora = new Date();
-            document.getElementById('admin-data-hora').textContent = agora.toLocaleString('pt-BR', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        // =============================================
-        // PEDIDOS
-        // =============================================
-        async function carregarPedidos() {
-            const container = document.getElementById('tabela-pedidos');
-            container.innerHTML = '<p class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando...</p>';
-
-            try {
-                const resp = await fetch('/api/admin/pedidos', {
-                    headers: { 'Authorization': 'Bearer ' + _adminToken }
-                });
-                const data = await resp.json();
-
-                if (data.error) {
-                    container.innerHTML = `<p class="text-red-500 text-center py-4">${data.error}</p>`;
-                    return;
-                }
-
-                if (!data.pedidos || data.pedidos.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-12">
-                            <i class="fas fa-inbox text-3xl text-gray-200 mb-3"></i>
-                            <p class="text-gray-400 text-sm">Nenhum pedido registrado</p>
-                        </div>`;
-                    return;
-                }
-
-                const statusCores = {
-                    pendente: 'bg-yellow-100 text-yellow-700',
-                    pago: 'bg-green-100 text-green-700',
-                    preparando: 'bg-blue-100 text-blue-700',
-                    enviado: 'bg-purple-100 text-purple-700',
-                    entregue: 'bg-gray-100 text-gray-600',
-                    cancelado: 'bg-red-100 text-red-700'
-                };
-
-                let html = `
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-gray-200 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">#</th>
-                                    <th class="py-3 px-4">Cliente</th>
-                                    <th class="py-3 px-4">Cidade</th>
-                                    <th class="py-3 px-4">Total</th>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4">Data</th>
-                                    <th class="py-3 px-4">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                `;
-
-                data.pedidos.forEach(p => {
-                    const cor = statusCores[p.status] || 'bg-gray-100 text-gray-500';
-                    const dt = new Date(p.created_at).toLocaleDateString('pt-BR');
-                    html += `
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="py-3 px-4 font-bold text-brand text-xs">${p.id}</td>
-                            <td class="py-3 px-4 text-gray-700">${p.cliente_nome || '—'}</td>
-                            <td class="py-3 px-4 text-gray-400 text-xs">${p.endereco_cidade || '—'}/${p.endereco_estado || ''}</td>
-                            <td class="py-3 px-4 font-bold">R$ ${(p.total || 0).toFixed(2).replace('.', ',')}</td>
-                            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cor}">${p.status}</span></td>
-                            <td class="py-3 px-4 text-gray-400 text-xs">${dt}</td>
-                            <td class="py-3 px-4">
-                                <select onchange="atualizarStatusPedido(${p.id}, this.value)" class="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:border-brand">
-                                    <option value="">Alterar...</option>
-                                    <option value="pago">✅ Pago</option>
-                                    <option value="preparando">📦 Preparando</option>
-                                    <option value="enviado">🚚 Enviado</option>
-                                    <option value="entregue">✔️ Entregue</option>
-                                    <option value="cancelado">❌ Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                html += '</tbody></table></div>';
-                container.innerHTML = html;
-
-            } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center py-4">Erro: ${err.message}</p>`;
+            if (result.error) {
+                erroEl.textContent = 'Erro: ' + result.error.message;
+                erroEl.classList.remove('hidden');
+                return;
             }
+
+            okEl.textContent = editId ? 'Produto atualizado!' : 'Produto cadastrado!';
+            okEl.classList.remove('hidden');
+            setTimeout(() => { fecharModal(); loadProdutos(); }, 800);
         }
 
-        async function atualizarStatusPedido(pedidoId, novoStatus) {
-            if (!novoStatus) return;
-
-            try {
-                const resp = await fetch('/api/admin/pedidos', {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': 'Bearer ' + _adminToken,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ pedido_id: pedidoId, status: novoStatus })
-                });
-                const data = await resp.json();
-
-                if (data.sucesso) {
-                    carregarPedidos(); // Recarrega a tabela
-                } else {
-                    alert('Erro: ' + (data.error || 'Falha ao atualizar'));
-                }
-            } catch (err) {
-                alert('Erro de conexão: ' + err.message);
-            }
-        }
-
-        // =============================================
-        // PRODUTOS (lê direto do Supabase via anon key)
-        // =============================================
-        async function carregarProdutosAdmin() {
-            const container = document.getElementById('tabela-produtos');
-            container.innerHTML = '<p class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando...</p>';
-
-            try {
-                const produtos = await supaFetch('produtos', '?select=*&order=id.asc');
-
-                if (!Array.isArray(produtos) || produtos.length === 0) {
-                    container.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Nenhum produto cadastrado.</p>';
-                    return;
-                }
-
-                let html = `
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-gray-200 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">ID</th>
-                                    <th class="py-3 px-4">Produto</th>
-                                    <th class="py-3 px-4">Categoria</th>
-                                    <th class="py-3 px-4">Preço</th>
-                                    <th class="py-3 px-4">Estoque</th>
-                                    <th class="py-3 px-4">Ativo</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                `;
-
-                produtos.forEach(p => {
-                    const statusEstoque = p.esgotado
-                        ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">Esgotado</span>'
-                        : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-600">Disponível</span>';
-                    const statusAtivo = p.ativo
-                        ? '<span class="text-green-500"><i class="fas fa-check-circle"></i></span>'
-                        : '<span class="text-gray-300"><i class="fas fa-minus-circle"></i></span>';
-
-                    html += `
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="py-3 px-4 font-bold text-brand text-xs">${p.id}</td>
-                            <td class="py-3 px-4">
-                                <div class="flex items-center gap-3">
-                                    <img src="${p.imagem_principal}" class="w-10 h-10 object-cover rounded bg-gray-50 mix-blend-multiply" onerror="this.src='https://placehold.co/40x40/eee/999?text=?'">
-                                    <span class="font-bold text-gray-800 text-sm">${p.nome}</span>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 text-gray-400 text-xs">${p.categoria}</td>
-                            <td class="py-3 px-4 font-bold">R$ ${(p.preco_atual || 0).toFixed(2).replace('.', ',')}</td>
-                            <td class="py-3 px-4">${statusEstoque}</td>
-                            <td class="py-3 px-4">${statusAtivo}</td>
-                        </tr>
-                    `;
-                });
-
-                html += '</tbody></table></div>';
-                container.innerHTML = html;
-
-            } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center py-4">Erro: ${err.message}</p>`;
-            }
+        function fecharModal() {
+            document.getElementById('modal-produto').classList.add('hidden');
         }
     </script>
-
 </body>
 
 </html>
