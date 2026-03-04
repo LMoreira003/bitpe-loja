@@ -664,6 +664,17 @@ function atualizarEVisibilizarCarrinhoHTML() {
 
     if (!containerLista) return;
 
+    // LIMPEZA DE ÓRFÃOS: Remove itens cujo produto já não existe no Supabase
+    if (_produtosCarregados && _produtosCarregados.length > 0) {
+        const antes = listaCarrinhoAtual.length;
+        listaCarrinhoAtual = listaCarrinhoAtual.filter(item =>
+            _produtosCarregados.some(p => String(p.id) === String(item.produtoId))
+        );
+        if (listaCarrinhoAtual.length !== antes) {
+            localStorage.setItem('bitpe_carrinho', JSON.stringify(listaCarrinhoAtual));
+        }
+    }
+
     if (listaCarrinhoAtual.length === 0) {
         containerLista.innerHTML = `
               <div class="flex flex-col items-center justify-center h-full text-gray-400 p-8 text-center mt-12">
