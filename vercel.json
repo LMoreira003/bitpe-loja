@@ -1,1 +1,29 @@
-{"redirects": [{"source": "/", "destination": "/manutencao.html", "permanent": false}, {"source": "/produtos", "destination": "/manutencao.html", "permanent": false}, {"source": "/produto-detalhe", "destination": "/manutencao.html", "permanent": false}, {"source": "/checkout", "destination": "/manutencao.html", "permanent": false}]}
+{
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
+            "source": "/index.html",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
+            "source": "/produtos",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
+            "source": "/produto-detalhe",
+            "destination": "/manutencao.html",
+            "permanent": false
+        },
+        {
+            "source": "/checkout",
+            "destination": "/manutencao.html",
+            "permanent": false
+        }
+    ]
+}
