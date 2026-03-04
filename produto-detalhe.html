@@ -109,19 +109,7 @@
     <script src="js/db.js?v=5"></script>
     <script src="js/main.js?v=5"></script>
 
-    <!-- Chamada específica para essa página -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {             // Pega o ID que veio no link da vitrine (ex: produto-detalhe.html?id=1)
-            const urlParams = new URLSearchParams(window.location.search);
-            const produtoId = urlParams.get('id');
-            // Se tiver ID abre a pagina, senão manda ele de volta pro catálogo
-            if (produtoId) {
-                renderizarPaginaDeDetalhes(produtoId);
-            } else {
-                window.location.href = 'produtos.html';
-            }
-        });
-    </script>
+    <!-- A chamada de renderização agora é feita automaticamente pelo main.js -->
 </body>
 
 </html>

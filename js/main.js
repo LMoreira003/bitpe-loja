@@ -78,14 +78,40 @@ function renderizarProdutos(lista, containerId) {
     });
 }
 
+// Variável global que armazena os produtos (preenchida pela API ou fallback do db.js)
+let _produtosCarregados = [];
+
 // Inicia as duas telas (O que não achar ele pula sozinho)
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // 0. Estrutura o Carrinho (Criando a gaveta na tela)
     iniciarCarrinhoLateral();
 
-    // 1. Renderiza Produtos
-    renderizarProdutos(bancoDeProdutos, 'vitrine-home');
-    renderizarProdutos(bancoDeProdutos, 'vitrine-catalogo');
+    // 1. Carrega Produtos do Supabase (ou fallback local)
+    try {
+        const resp = await fetch('/api/produtos');
+        const data = await resp.json();
+        if (data.produtos && data.produtos.length > 0) {
+            _produtosCarregados = data.produtos;
+        } else {
+            // Fallback: usa o db.js local se a API voltar vazia
+            _produtosCarregados = (typeof bancoDeProdutos !== 'undefined') ? bancoDeProdutos : [];
+        }
+    } catch (e) {
+        // Se a API falhar (sem internet, etc), usa o db.js local
+        _produtosCarregados = (typeof bancoDeProdutos !== 'undefined') ? bancoDeProdutos : [];
+    }
+
+    // Renderiza vitrines com os dados carregados
+    renderizarProdutos(_produtosCarregados, 'vitrine-home');
+    renderizarProdutos(_produtosCarregados, 'vitrine-catalogo');
+
+    // Se a página de detalhes existir, renderiza ela também
+    const containerDetalhe = document.getElementById('produto-container');
+    if (containerDetalhe) {
+        const params = new URLSearchParams(window.location.search);
+        const idProduto = params.get('id');
+        if (idProduto) renderizarPaginaDeDetalhes(idProduto);
+    }
 
     // 2. Renderiza Banners se estiver na página inicial
     const bannerSliderContainer = document.getElementById('banner-slider');
@@ -94,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bancoDeBanners.forEach(banner => {
             let overlayOpacity = banner.corEscuraOverlay || 0;
 
-            // Tratamento pra imagem mobile se existir
             let mobileClass = banner.imagemMobile ? 'hidden md:block' : '';
             let imgDesktop = `<img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover select-none ${mobileClass}" onerror="this.onerror=null; this.src='https://placehold.co/1920x800/eaeaea/999?text=Banner+Aqui';">`;
 
@@ -115,11 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         bannerSliderContainer.innerHTML = bannerHtml;
 
-        // Inicia inteligência do SwiperJS
         new Swiper('.mySwiper', {
             loop: true,
             autoplay: {
-                delay: 4500, // Passa sozinho a cada 4.5 segundos
+                delay: 4500,
                 disableOnInteraction: false,
             },
             pagination: {
@@ -136,10 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // MOTOR DA PÁGINA DE DETALHES DO PRODUTO (produto-detalhe.html)
 function renderizarPaginaDeDetalhes(idRequisitado) {
-    if (typeof bancoDeProdutos === 'undefined') return;
+    if (!_produtosCarregados || _produtosCarregados.length === 0) return;
 
     // Acha o produto certo baseando-se no ID (ex: 1 = Homem Aranha)
-    const produto = bancoDeProdutos.find(p => String(p.id) === String(idRequisitado));
+    const produto = _produtosCarregados.find(p => String(p.id) === String(idRequisitado));
 
     // Se digitou ID errado na barra (ex ?id=999) manda pros produtos
     if (!produto) {
@@ -565,9 +589,9 @@ window.fecharCarrinho = function () {
 
 // ESTA FUNÇÃO É CHAMADA PELO BOTÃO DA PAGINA DE DETALHES
 window.adicionarItemAoCarrinho = function (idProduto, diretoProPagamento) {
-    if (typeof bancoDeProdutos === 'undefined') return;
+    if (!_produtosCarregados || _produtosCarregados.length === 0) return;
 
-    const produtoEncontrado = bancoDeProdutos.find(p => String(p.id) === String(idProduto));
+    const produtoEncontrado = _produtosCarregados.find(p => String(p.id) === String(idProduto));
     if (!produtoEncontrado) return;
 
     // VALIDAÇÃO OBRIGATÓRIA: Se não escolheu tamanho, TRAVA
@@ -648,7 +672,7 @@ function atualizarEVisibilizarCarrinhoHTML() {
 
     listaCarrinhoAtual.forEach(itemCarregado => {
         // Busca info usando ID que está salvo
-        const produtoBase = bancoDeProdutos.find(p => String(p.id) === String(itemCarregado.produtoId));
+        const produtoBase = _produtosCarregados.find(p => String(p.id) === String(itemCarregado.produtoId));
         if (produtoBase) {
             totalAcumulado += produtoBase.precoAtual * itemCarregado.qtd;
 
