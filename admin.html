@@ -212,24 +212,44 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Preço Atual *</label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Preço *</label>
                         <input type="number" step="0.01" id="prod-preco"
                             class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
                             placeholder="149.90">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Preço Antigo</label>
-                        <input type="number" step="0.01" id="prod-preco-antigo"
-                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                            placeholder="189.90">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase">Etiqueta</label>
                         <input type="text" id="prod-etiqueta"
                             class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
                             placeholder="LANÇAMENTO">
+                        <p class="text-[10px] text-gray-400 mt-0.5">Aparece no canto do card (ex: LANÇAMENTO, NOVO)</p>
+                    </div>
+                </div>
+
+                <!-- PROMOÇÃO -->
+                <div class="border border-dashed border-red-200 rounded-xl p-4 bg-red-50/50">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer font-bold text-red-600">
+                        <input type="checkbox" id="prod-promo" class="w-4 h-4 accent-red-500"
+                            onchange="togglePromoFields()">
+                        <i class="fas fa-fire"></i> Produto em Promoção
+                    </label>
+                    <div id="promo-fields" class="hidden mt-3 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-red-400 uppercase">Preço Original (De)</label>
+                            <input type="number" step="0.01" id="prod-preco-antigo"
+                                class="w-full border border-red-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-400 bg-white"
+                                placeholder="189.90">
+                            <p class="text-[10px] text-red-400 mt-0.5">Fica riscado. O "Preço" acima vira o "Por".</p>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-red-400 uppercase">Nome da Promo</label>
+                            <input type="text" id="prod-promo-nome"
+                                class="w-full border border-red-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-400 bg-white"
+                                placeholder="QUEIMA DE ESTOQUE">
+                            <p class="text-[10px] text-red-400 mt-0.5">Aparece no badge vermelho animado</p>
+                        </div>
                     </div>
                 </div>
 
@@ -485,6 +505,15 @@
             loadProdutos();
         }
 
+        function togglePromoFields() {
+            const checked = document.getElementById('prod-promo').checked;
+            document.getElementById('promo-fields').classList.toggle('hidden', !checked);
+            if (!checked) {
+                document.getElementById('prod-preco-antigo').value = '';
+                document.getElementById('prod-promo-nome').value = '';
+            }
+        }
+
         // ================================================
         // PRODUTOS — Formulário (Criar/Editar)
         // ================================================
@@ -536,6 +565,9 @@
             document.getElementById('prod-cat').value = 'INFANTIL';
             document.getElementById('prod-preco').value = '';
             document.getElementById('prod-preco-antigo').value = '';
+            document.getElementById('prod-promo-nome').value = '';
+            document.getElementById('prod-promo').checked = false;
+            document.getElementById('promo-fields').classList.add('hidden');
             document.getElementById('prod-etiqueta').value = '';
             document.getElementById('prod-desc').value = '';
             document.getElementById('prod-benef').value = '';
@@ -573,6 +605,12 @@
             document.getElementById('form-erro').classList.add('hidden');
             document.getElementById('form-ok').classList.add('hidden');
             document.getElementById('btn-deletar-produto').classList.remove('hidden');
+
+            // Promoção
+            const temPromo = !!p.preco_antigo;
+            document.getElementById('prod-promo').checked = temPromo;
+            document.getElementById('promo-fields').classList.toggle('hidden', !temPromo);
+            document.getElementById('prod-promo-nome').value = (temPromo && p.etiqueta_cor === 'bg-red-500') ? (p.etiqueta || '') : '';
 
             // Preenche galeria unificada
             const todasFotos = (p.galeria_imagens || []);
@@ -653,13 +691,26 @@
             const imgPrincipal = _fotosGaleria[_fotoPrincipalIdx] || '';
             const galeria = _fotosGaleria.length > 0 ? [..._fotosGaleria] : [];
 
+            // Promoção
+            const promoAtiva = document.getElementById('prod-promo').checked;
+            const precoAntigo = promoAtiva ? (parseFloat(document.getElementById('prod-preco-antigo').value) || null) : null;
+            const promoNome = promoAtiva ? (document.getElementById('prod-promo-nome').value.trim() || 'PROMOÇÃO') : null;
+
+            // Etiqueta: se tem promo ativa, a promo ganha prioridade visual
+            let etiquetaFinal = document.getElementById('prod-etiqueta').value.trim() || null;
+            let etiquetaCorFinal = 'bg-brand';
+            if (promoAtiva) {
+                etiquetaFinal = promoNome;
+                etiquetaCorFinal = 'bg-red-500';
+            }
+
             const payload = {
                 nome,
                 categoria: document.getElementById('prod-cat').value.trim() || 'GERAL',
                 preco_atual: preco,
-                preco_antigo: parseFloat(document.getElementById('prod-preco-antigo').value) || null,
-                etiqueta: document.getElementById('prod-etiqueta').value.trim() || null,
-                etiqueta_cor: 'bg-brand',
+                preco_antigo: precoAntigo,
+                etiqueta: etiquetaFinal,
+                etiqueta_cor: etiquetaCorFinal,
                 imagem_principal: imgPrincipal,
                 galeria_imagens: galeria,
                 descricao: document.getElementById('prod-desc').value.trim(),
