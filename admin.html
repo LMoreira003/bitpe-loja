@@ -233,41 +233,27 @@
                     </div>
                 </div>
 
+                <!-- GALERIA UNIFICADA DE FOTOS -->
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Imagem Principal</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="prod-img"
-                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                            placeholder="Link ou clique na nuvem ->">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Fotos do Produto</label>
                         <label
-                            class="bg-brand text-white px-3 py-2 rounded-lg cursor-pointer hover:bg-brand-dark flex-shrink-0 flex items-center justify-center transition-colors shadow-sm"
-                            title="Fazer Upload">
-                            <i class="fas fa-cloud-upload-alt relative"><span
-                                    class="absolute -top-1 -right-2 flex h-2 w-2"><span
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span><span
-                                        class="relative inline-flex rounded-full h-2 w-2 bg-white"></span></span></i>
-                            <input type="file" id="prod-img-upload" accept="image/*" class="hidden"
-                                onchange="uploadFoto(this, 'prod-img')">
+                            class="bg-brand text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-brand-dark text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
+                            <i class="fas fa-cloud-upload-alt"></i> Enviar Fotos
+                            <input type="file" accept="image/*" multiple class="hidden"
+                                onchange="uploadFotosGaleria(this)">
                         </label>
                     </div>
-                    <div id="upload-feedback-prod-img" class="text-xs font-bold mt-1 text-brand hidden"></div>
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Galeria (Fotos Extras)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="prod-galeria"
-                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                            placeholder="Múltiplos uploads suportados ->">
-                        <label
-                            class="bg-brand text-white px-3 py-2 rounded-lg cursor-pointer hover:bg-brand-dark flex-shrink-0 flex items-center justify-center transition-colors shadow-sm"
-                            title="Fazer Upload Múltiplo">
-                            <i class="fas fa-images"></i>
-                            <input type="file" id="prod-img-galeria-upload" accept="image/*" multiple class="hidden"
-                                onchange="uploadFotosMulti(this, 'prod-galeria')">
-                        </label>
+                    <div id="galeria-preview"
+                        class="grid grid-cols-4 sm:grid-cols-5 gap-3 min-h-[80px] border-2 border-dashed border-gray-200 rounded-xl p-3 bg-gray-50">
+                        <div class="col-span-full text-center text-gray-400 text-xs py-4" id="galeria-vazia">
+                            <i class="fas fa-image text-2xl mb-1 block"></i>
+                            Clique em "Enviar Fotos" para adicionar imagens
+                        </div>
                     </div>
-                    <div id="upload-feedback-prod-galeria" class="text-xs font-bold mt-1 text-brand hidden"></div>
+                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-star text-yellow-400 mr-1"></i>Clique na
+                        estrela de uma foto para defini-la como principal.</p>
+                    <div id="upload-feedback-galeria" class="text-xs font-bold mt-1 text-brand hidden"></div>
                 </div>
 
                 <div>
@@ -321,6 +307,11 @@
                     <button onclick="salvarProduto()"
                         class="flex-grow bg-brand text-white font-bold py-3 rounded-lg text-sm hover:bg-brand-dark transition-colors">
                         <i class="fas fa-save mr-2"></i> Salvar Produto
+                    </button>
+                    <button id="btn-deletar-produto" onclick="deletarProduto()"
+                        class="hidden px-4 bg-red-50 text-red-500 font-bold py-3 rounded-lg text-sm hover:bg-red-500 hover:text-white transition-colors"
+                        title="Excluir este produto permanentemente">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                     <button onclick="fecharModal()"
                         class="px-6 bg-gray-100 text-gray-600 font-bold py-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
@@ -483,7 +474,8 @@
             data.forEach(p => {
                 const est = p.esgotado ? '<span class="text-[10px] font-bold text-red-500">Esgotado</span>' : '<span class="text-[10px] font-bold text-green-500">Disponível</span>';
                 const at = p.ativo ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="fas fa-minus-circle text-gray-300"></i>';
-                h += `<tr class="hover:bg-gray-50"><td class="py-2 px-3 font-bold text-brand text-xs">${p.id}</td><td class="py-2 px-3"><div class="flex items-center gap-2"><img src="${p.imagem_principal}" class="w-8 h-8 rounded bg-gray-50 object-cover mix-blend-multiply" onerror="this.src='https://placehold.co/32/eee/999?text=?'"><span class="font-bold text-gray-800">${p.nome}</span></div></td><td class="py-2 px-3 font-bold">R$ ${(p.preco_atual || 0).toFixed(2).replace('.', ',')}</td><td class="py-2 px-3">${est}</td><td class="py-2 px-3">${at}</td><td class="py-2 px-3 flex gap-2"><button onclick="editarProduto(${p.id})" class="text-brand hover:text-brand-dark text-xs font-bold"><i class="fas fa-edit"></i></button><button onclick="toggleAtivo(${p.id},${!p.ativo})" class="text-gray-400 hover:text-orange-500 text-xs" title="${p.ativo ? 'Desativar' : 'Ativar'}"><i class="fas fa-power-off"></i></button></td></tr>`;
+                const imgSrc = p.imagem_principal || 'https://placehold.co/32/f3f4f6/d1d5db?text=-';
+                h += `<tr class="hover:bg-gray-50 cursor-pointer" onclick="editarProduto(${p.id})"><td class="py-2 px-3 font-bold text-brand text-xs">${p.id}</td><td class="py-2 px-3"><div class="flex items-center gap-2"><img src="${imgSrc}" class="w-8 h-8 rounded bg-gray-50 object-cover mix-blend-multiply" onerror="this.src='https://placehold.co/32/f3f4f6/d1d5db?text=-'"><span class="font-bold text-gray-800">${p.nome}</span></div></td><td class="py-2 px-3 font-bold">R$ ${(p.preco_atual || 0).toFixed(2).replace('.', ',')}</td><td class="py-2 px-3">${est}</td><td class="py-2 px-3">${at}</td><td class="py-2 px-3 flex gap-2" onclick="event.stopPropagation()"><button onclick="toggleAtivo(${p.id},${!p.ativo})" class="text-gray-400 hover:text-orange-500 text-xs" title="${p.ativo ? 'Desativar' : 'Ativar'}"><i class="fas fa-power-off"></i></button></td></tr>`;
             });
             h += '</tbody></table></div>'; ct.innerHTML = h;
         }
@@ -496,6 +488,47 @@
         // ================================================
         // PRODUTOS — Formulário (Criar/Editar)
         // ================================================
+
+        // Array global que guarda as URLs das fotos desse produto
+        let _fotosGaleria = [];
+        let _fotoPrincipalIdx = 0;
+
+        function renderGaleriaPreview() {
+            const ct = document.getElementById('galeria-preview');
+            const vazio = document.getElementById('galeria-vazia');
+            if (_fotosGaleria.length === 0) {
+                ct.innerHTML = '';
+                ct.appendChild(vazio); vazio.classList.remove('hidden');
+                return;
+            }
+            if (vazio) vazio.classList.add('hidden');
+            let h = '';
+            _fotosGaleria.forEach((url, i) => {
+                const isPrincipal = (i === _fotoPrincipalIdx);
+                h += `<div class="relative group rounded-lg overflow-hidden border-2 ${isPrincipal ? 'border-yellow-400 ring-2 ring-yellow-300' : 'border-gray-200'} bg-white aspect-square">
+                    <img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100/f3f4f6/d1d5db?text=-'">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
+                        <button onclick="definirPrincipal(${i})" class="${isPrincipal ? 'text-yellow-400' : 'text-white hover:text-yellow-400'} transition-colors drop-shadow-lg" title="Definir como principal">
+                            <i class="fas fa-star text-lg"></i>
+                        </button>
+                        <button onclick="removerFotoGaleria(${i})" class="text-white hover:text-red-400 transition-colors drop-shadow-lg" title="Remover">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                    ${isPrincipal ? '<span class="absolute top-0.5 left-0.5 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">PRINCIPAL</span>' : ''}
+                </div>`;
+            });
+            ct.innerHTML = h;
+        }
+
+        function definirPrincipal(idx) { _fotoPrincipalIdx = idx; renderGaleriaPreview(); }
+        function removerFotoGaleria(idx) {
+            _fotosGaleria.splice(idx, 1);
+            if (_fotoPrincipalIdx >= _fotosGaleria.length) _fotoPrincipalIdx = 0;
+            if (idx < _fotoPrincipalIdx) _fotoPrincipalIdx--;
+            renderGaleriaPreview();
+        }
+
         function abrirFormProduto() {
             document.getElementById('modal-titulo').textContent = 'Novo Produto';
             document.getElementById('prod-id').value = '';
@@ -504,8 +537,6 @@
             document.getElementById('prod-preco').value = '';
             document.getElementById('prod-preco-antigo').value = '';
             document.getElementById('prod-etiqueta').value = '';
-            document.getElementById('prod-img').value = '';
-            document.getElementById('prod-galeria').value = '';
             document.getElementById('prod-desc').value = '';
             document.getElementById('prod-benef').value = '';
             document.getElementById('prod-ativo').checked = true;
@@ -515,8 +546,11 @@
             document.getElementById('tamanhos-container').innerHTML = '';
             document.getElementById('form-erro').classList.add('hidden');
             document.getElementById('form-ok').classList.add('hidden');
-            addCor(); // Começa com 1 cor
-            addTamanho(); // Começa com 1 tamanho
+            document.getElementById('btn-deletar-produto').classList.add('hidden');
+            _fotosGaleria = []; _fotoPrincipalIdx = 0;
+            renderGaleriaPreview();
+            addCor();
+            addTamanho();
             document.getElementById('modal-produto').classList.remove('hidden');
         }
 
@@ -531,8 +565,6 @@
             document.getElementById('prod-preco').value = p.preco_atual || '';
             document.getElementById('prod-preco-antigo').value = p.preco_antigo || '';
             document.getElementById('prod-etiqueta').value = p.etiqueta || '';
-            document.getElementById('prod-img').value = p.imagem_principal || '';
-            document.getElementById('prod-galeria').value = (p.galeria_imagens || []).join(', ');
             document.getElementById('prod-desc').value = p.descricao || '';
             document.getElementById('prod-benef').value = (p.beneficios || []).join('\n');
             document.getElementById('prod-ativo').checked = p.ativo;
@@ -540,6 +572,14 @@
             document.getElementById('prod-destaque').checked = p.destaque || false;
             document.getElementById('form-erro').classList.add('hidden');
             document.getElementById('form-ok').classList.add('hidden');
+            document.getElementById('btn-deletar-produto').classList.remove('hidden');
+
+            // Preenche galeria unificada
+            const todasFotos = (p.galeria_imagens || []);
+            if (todasFotos.length === 0 && p.imagem_principal) todasFotos.push(p.imagem_principal);
+            _fotosGaleria = [...todasFotos];
+            _fotoPrincipalIdx = p.imagem_principal ? Math.max(0, _fotosGaleria.indexOf(p.imagem_principal)) : 0;
+            renderGaleriaPreview();
 
             // Preenche cores
             const cc = document.getElementById('cores-container');
@@ -605,15 +645,13 @@
                 if (n) tamanhos.push({ numero: n, disponivel: d });
             });
 
-            // Monta galeria
-            const galeriaStr = document.getElementById('prod-galeria').value;
-            const galeria = galeriaStr ? galeriaStr.split(',').map(s => s.trim()).filter(Boolean) : [];
-
             // Monta benefícios
             const benefStr = document.getElementById('prod-benef').value;
             const beneficios = benefStr ? benefStr.split('\n').map(s => s.trim()).filter(Boolean) : [];
 
-            const imgPrincipal = document.getElementById('prod-img').value.trim();
+            // Pega imagens da galeria unificada
+            const imgPrincipal = _fotosGaleria[_fotoPrincipalIdx] || '';
+            const galeria = _fotosGaleria.length > 0 ? [..._fotosGaleria] : [];
 
             const payload = {
                 nome,
@@ -622,8 +660,8 @@
                 preco_antigo: parseFloat(document.getElementById('prod-preco-antigo').value) || null,
                 etiqueta: document.getElementById('prod-etiqueta').value.trim() || null,
                 etiqueta_cor: 'bg-brand',
-                imagem_principal: imgPrincipal || (galeria[0] || ''),
-                galeria_imagens: galeria.length > 0 ? galeria : (imgPrincipal ? [imgPrincipal] : []),
+                imagem_principal: imgPrincipal,
+                galeria_imagens: galeria,
                 descricao: document.getElementById('prod-desc').value.trim(),
                 beneficios,
                 cores,
@@ -654,57 +692,49 @@
         }
 
         // ================================================
-        // UPLOAD DE FOTOS PARA O STORAGE (SUPABASE SECUNDÁRIO)
+        // DELETAR PRODUTO
         // ================================================
-        async function uploadFoto(inputObj, targetId) {
-            const file = inputObj.files[0];
-            if (!file) return;
+        async function deletarProduto() {
+            const editId = document.getElementById('prod-id').value;
+            if (!editId) return;
+            const nome = document.getElementById('prod-nome').value;
+            if (!confirm(`Tem certeza que quer EXCLUIR o produto "${nome}"? Essa ação não pode ser desfeita.`)) return;
 
-            const feedback = document.getElementById(`upload-feedback-${targetId}`);
-            feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subindo foto pro Storage...';
-            feedback.classList.remove('hidden');
+            const { error } = await sb.from('produtos').delete().eq('id', parseInt(editId));
+            if (error) { alert('Erro ao excluir: ' + error.message); return; }
 
-            const ext = file.name.split('.').pop();
-            const fileName = `ft_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-
-            // Usa o supabase secundário (sbFotos) para o upload
-            const { data, error } = await sbFotos.storage.from('produtos').upload(fileName, file);
-
-            if (error) {
-                feedback.innerHTML = `<span class="text-red-500"><i class="fas fa-exclamation-circle"></i> Erro de upload: ${error.message}</span>`;
-                return;
-            }
-
-            const publicUrl = sbFotos.storage.from('produtos').getPublicUrl(fileName).data.publicUrl;
-            document.getElementById(targetId).value = publicUrl;
-            feedback.innerHTML = '<span class="text-green-500"><i class="fas fa-check-circle"></i> Upload concluído!</span>';
+            fecharModal();
+            loadProdutos();
         }
 
-        async function uploadFotosMulti(inputObj, targetId) {
+        // ================================================
+        // UPLOAD DE FOTOS PARA O STORAGE (SUPABASE SECUNDÁRIO)
+        // ================================================
+        async function uploadFotosGaleria(inputObj) {
             const files = Array.from(inputObj.files);
             if (files.length === 0) return;
 
-            const feedback = document.getElementById(`upload-feedback-${targetId}`);
+            const feedback = document.getElementById('upload-feedback-galeria');
             feedback.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subindo ${files.length} foto(s)...`;
             feedback.classList.remove('hidden');
 
-            let urls = [];
+            let count = 0;
             for (let file of files) {
                 const ext = file.name.split('.').pop();
-                const fileName = `gal_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+                const fileName = `ft_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
                 const { data, error } = await sbFotos.storage.from('produtos').upload(fileName, file);
 
                 if (!error) {
                     const publicUrl = sbFotos.storage.from('produtos').getPublicUrl(fileName).data.publicUrl;
-                    urls.push(publicUrl);
+                    _fotosGaleria.push(publicUrl);
+                    count++;
                 }
             }
 
-            const campo = document.getElementById(targetId);
-            const atuais = campo.value ? campo.value.split(',').map(s => s.trim()).filter(Boolean) : [];
-            campo.value = atuais.concat(urls).join(', ');
-
-            feedback.innerHTML = `<span class="text-green-500"><i class="fas fa-check-circle"></i> ${urls.length} foto(s) enviadas!</span>`;
+            renderGaleriaPreview();
+            feedback.innerHTML = `<span class="text-green-500"><i class="fas fa-check-circle"></i> ${count} foto(s) enviadas!</span>`;
+            setTimeout(() => feedback.classList.add('hidden'), 3000);
+            inputObj.value = ''; // Reset input para permitir reupload do mesmo arquivo
         }
 
         function fecharModal() {
