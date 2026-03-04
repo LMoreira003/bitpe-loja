@@ -9,12 +9,13 @@ function renderizarProdutos(lista, containerId) {
         // --- MONTANDO AS CORES ---
         let coresHtml = '';
         let maxCores = 3; // Mostrar até 3 bolinhas para não quebrar a caixa
-        produto.cores.slice(0, maxCores).forEach((cor, index) => {
+        const prodCores = produto.cores || [];
+        prodCores.slice(0, maxCores).forEach((cor, index) => {
             let selectedRing = index === 0 ? "ring-2 ring-offset-1 ring-gray-400" : "";
-            coresHtml += `<div class="w-5 h-5 rounded-full ${cor.classeCss} border border-gray-300 cursor-pointer ${selectedRing}" title="${cor.nome}"></div>`;
+            coresHtml += `<div class="w-5 h-5 rounded-full ${cor.classeCss || 'bg-gray-200'} border border-gray-300 cursor-pointer ${selectedRing}" title="${cor.nome}"></div>`;
         });
-        if (produto.cores.length > maxCores) {
-            coresHtml += `<span class="text-xs text-gray-500 font-semibold self-center ml-1">+${produto.cores.length - maxCores}</span>`;
+        if (prodCores.length > maxCores) {
+            coresHtml += `<span class="text-xs text-gray-500 font-semibold self-center ml-1">+${prodCores.length - maxCores}</span>`;
         }
 
         // --- MONTANDO O PREÇO ---
@@ -188,7 +189,9 @@ function renderizarPaginaDeDetalhes(idRequisitado) {
     }
 
     //  Galeria de Fotos (Slider automático + swipe + thumbs)
-    const fotosParaMostrar = (produto.galeriaImagens && produto.galeriaImagens.length > 0) ? produto.galeriaImagens : [produto.imagem];
+    let fotosParaMostrar = (produto.galeriaImagens && produto.galeriaImagens.length > 0) ? produto.galeriaImagens : [];
+    if (fotosParaMostrar.length === 0 && produto.imagem) fotosParaMostrar.push(produto.imagem);
+    if (fotosParaMostrar.length === 0) fotosParaMostrar.push('https://placehold.co/500x500/eaeaea/999?text=Sem+Foto');
 
     let htmlThumbs = '';
     let htmlSliders = '';
@@ -211,45 +214,56 @@ function renderizarPaginaDeDetalhes(idRequisitado) {
     });
 
     //  Cores HTML (Selecionáveis - A primeira já começa ativa)
-    let selecionarCorHtml = `<p class="font-bold text-sm mb-3">Cor: <span id="cor-nome-selecionada" class="text-brand font-bold">${produto.cores[0].nome}</span></p><div class="flex flex-wrap gap-3 mb-6" id="seletor-cores">`;
-    produto.cores.forEach((cor, i) => {
-        let ringBaseInfo = i === 0 ? "ring-2 ring-brand ring-offset-2 cor-ativa" : "border-gray-200";
-        selecionarCorHtml += `
-            <button onclick="selecionarCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-cor w-8 h-8 rounded-full ${cor.classeCss} border ${ringBaseInfo} shadow-sm hover:scale-110 transition-transform focus:outline-none"></button>
-        `;
-    });
-    selecionarCorHtml += `</div>`;
+    let selecionarCorHtml = '';
+    const arrayCores = produto.cores || [];
+    if (arrayCores.length > 0) {
+        selecionarCorHtml = `<p class="font-bold text-sm mb-3">Cor: <span id="cor-nome-selecionada" class="text-brand font-bold">${arrayCores[0].nome}</span></p><div class="flex flex-wrap gap-3 mb-6" id="seletor-cores">`;
+        arrayCores.forEach((cor, i) => {
+            let ringBaseInfo = i === 0 ? "ring-2 ring-brand ring-offset-2 cor-ativa" : "border-gray-200";
+            selecionarCorHtml += `
+                <button onclick="selecionarCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-cor w-8 h-8 rounded-full ${cor.classeCss || 'bg-gray-200'} border ${ringBaseInfo} shadow-sm hover:scale-110 transition-transform focus:outline-none"></button>
+            `;
+        });
+        selecionarCorHtml += `</div>`;
+    } else {
+        selecionarCorHtml = `<input type="hidden" id="cor-nome-selecionada" value="Única">`;
+    }
 
 
     //  Tamanhos Disponiveis HTML (Interativos e obrigatórios)
-    let selecionarTamanhoHtml = `<div class="flex justify-between items-end mb-3">
-                                    <p class="font-bold text-sm">Tamanho: <span id="tam-nome-selecionado" class="text-brand font-bold">Selecione</span></p>
-                                    <a href="#" class="text-brand text-xs font-bold underline">Guia de Tamanhos</a>
-                                 </div>
-                                 <div class="grid grid-cols-4 sm:grid-cols-5 gap-2 mb-4" id="seletor-tamanhos">`;
+    let selecionarTamanhoHtml = '';
+    const arrayTamanhos = produto.tamanhos || [];
+    if (arrayTamanhos.length > 0) {
+        selecionarTamanhoHtml = `<div class="flex justify-between items-end mb-3">
+                                        <p class="font-bold text-sm">Tamanho: <span id="tam-nome-selecionado" class="text-brand font-bold">Selecione</span></p>
+                                        <a href="#" class="text-brand text-xs font-bold underline">Guia de Tamanhos</a>
+                                     </div>
+                                     <div class="grid grid-cols-4 sm:grid-cols-5 gap-2 mb-4" id="seletor-tamanhos">`;
 
-    // Tratamento para não quebrar se for produto antigo do BD
-    let calcTamanhosArray = (typeof produto.tamanhos[0] === 'object') ? produto.tamanhos : produto.tamanhos.map(t => { return { numero: t, disponivel: true } });
+        // Tratamento para não quebrar se for produto antigo do BD ou incompleto
+        let calcTamanhosArray = (typeof arrayTamanhos[0] === 'object') ? arrayTamanhos : arrayTamanhos.map(t => { return { numero: t, disponivel: true } });
 
-    calcTamanhosArray.forEach(tam => {
-        if (tam.disponivel) {
-            selecionarTamanhoHtml += `
-                 <button onclick="selecionarTamanho(this, '${tam.numero}')" data-tamanho="${tam.numero}" class="btn-tam border border-gray-300 py-3 rounded text-sm font-bold shadow-sm hover:border-brand hover:text-brand transition-colors focus:ring-2 focus:ring-brand focus:outline-none bg-white">
-                    ${tam.numero}
-                 </button>
-             `;
-        } else {
-            selecionarTamanhoHtml += `
-                 <button disabled class="border border-gray-200 bg-gray-100 text-gray-400 py-3 rounded text-sm font-bold cursor-not-allowed relative overflow-hidden">
-                    ${tam.numero}
-                    <div class="absolute inset-0 flex items-center justify-center"><div class="w-full h-px bg-gray-300 transform rotate-45"></div></div>
-                 </button>
-             `;
-        }
-    });
-    selecionarTamanhoHtml += `</div>`;
-    // Aviso de erro que só aparece quando clicar sem ter escolhido
-    selecionarTamanhoHtml += `<p id="aviso-tamanho" class="text-red-500 text-xs font-bold mb-4 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Escolha um tamanho antes de continuar.</p>`;
+        calcTamanhosArray.forEach(tam => {
+            if (tam.disponivel) {
+                selecionarTamanhoHtml += `
+                     <button onclick="selecionarTamanho(this, '${tam.numero}')" data-tamanho="${tam.numero}" class="btn-tam border border-gray-300 py-3 rounded text-sm font-bold shadow-sm hover:border-brand hover:text-brand transition-colors focus:ring-2 focus:ring-brand focus:outline-none bg-white">
+                        ${tam.numero}
+                     </button>
+                 `;
+            } else {
+                selecionarTamanhoHtml += `
+                     <button disabled class="border border-gray-200 bg-gray-100 text-gray-400 py-3 rounded text-sm font-bold cursor-not-allowed relative overflow-hidden">
+                        ${tam.numero}
+                        <div class="absolute inset-0 flex items-center justify-center"><div class="w-full h-px bg-gray-300 transform rotate-45"></div></div>
+                     </button>
+                 `;
+            }
+        });
+        selecionarTamanhoHtml += `</div>`;
+        selecionarTamanhoHtml += `<p id="aviso-tamanho" class="text-red-500 text-xs font-bold mb-4 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Escolha um tamanho antes de continuar.</p>`;
+    } else {
+        selecionarTamanhoHtml = `<input type="hidden" id="tam-nome-selecionado" value="Único">`;
+    }
 
     let btnComprarInfo = produto.esgotado ? "ESGOTADO" : `ADICIONAR R$ ${produto.precoAtual.toFixed(2).replace('.', ',')}`;
     let btnComprarClass = produto.esgotado ? "bg-gray-400 text-gray-100 cursor-not-allowed" : "bg-brand text-white hover:bg-brand-dark cursor-pointer";
