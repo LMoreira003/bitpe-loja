@@ -206,9 +206,14 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
-                        <input type="text" id="prod-cat"
-                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand"
-                            placeholder="INFANTIL">
+                        <select id="prod-cat"
+                            class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-brand cursor-pointer">
+                            <option value="INFANTIL">INFANTIL</option>
+                            <option value="HOMEM">HOMEM</option>
+                            <option value="MULHER">MULHER</option>
+                            <option value="BITPINS">BITPINS</option>
+                            <option value="GERAL">GERAL</option>
+                        </select>
                     </div>
                 </div>
 
@@ -524,13 +529,16 @@
 
         function renderGaleriaPreview() {
             const ct = document.getElementById('galeria-preview');
-            const vazio = document.getElementById('galeria-vazia');
+
             if (_fotosGaleria.length === 0) {
-                ct.innerHTML = '';
-                ct.appendChild(vazio); vazio.classList.remove('hidden');
+                ct.innerHTML = `
+                    <div class="col-span-full text-center text-gray-400 text-xs py-4" id="galeria-vazia">
+                        <i class="fas fa-image text-2xl mb-1 block"></i>
+                        Clique em "Enviar Fotos" para adicionar imagens
+                    </div>`;
                 return;
             }
-            if (vazio) vazio.classList.add('hidden');
+
             let h = '';
             _fotosGaleria.forEach((url, i) => {
                 const isPrincipal = (i === _fotoPrincipalIdx);
