@@ -12,7 +12,9 @@ function renderizarProdutos(lista, containerId) {
         const prodCores = produto.cores || [];
         prodCores.slice(0, maxCores).forEach((cor, index) => {
             let selectedRing = index === 0 ? "ring-2 ring-offset-1 ring-gray-400" : "";
-            coresHtml += `<div class="w-5 h-5 rounded-full ${cor.classeCss || 'bg-gray-200'} border border-gray-300 cursor-pointer ${selectedRing}" title="${cor.nome}"></div>`;
+            const corStyle = cor.hex ? `style="background-color: ${cor.hex}"` : '';
+            const corClass = cor.hex ? '' : (cor.classeCss || 'bg-gray-200');
+            coresHtml += `<div class="w-5 h-5 rounded-full ${corClass} border border-gray-300 cursor-pointer ${selectedRing}" ${corStyle} title="${cor.nome}"></div>`;
         });
         if (prodCores.length > maxCores) {
             coresHtml += `<span class="text-xs text-gray-500 font-semibold self-center ml-1">+${prodCores.length - maxCores}</span>`;
@@ -223,8 +225,10 @@ function renderizarPaginaDeDetalhes(idRequisitado) {
         selecionarCorHtml = `<p class="font-bold text-sm mb-3">Cor: <span id="cor-nome-selecionada" class="text-brand font-bold">${arrayCores[0].nome}</span></p><div class="flex flex-wrap gap-3 mb-6" id="seletor-cores">`;
         arrayCores.forEach((cor, i) => {
             let ringBaseInfo = i === 0 ? "ring-2 ring-brand ring-offset-2 cor-ativa" : "border-gray-200";
+            const corStyle = cor.hex ? `style="background-color: ${cor.hex}"` : '';
+            const corClass = cor.hex ? '' : (cor.classeCss || 'bg-gray-200');
             selecionarCorHtml += `
-                <button onclick="selecionarCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-cor w-8 h-8 rounded-full ${cor.classeCss || 'bg-gray-200'} border ${ringBaseInfo} shadow-sm hover:scale-110 transition-transform focus:outline-none"></button>
+                <button onclick="selecionarCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-cor w-8 h-8 rounded-full ${corClass} border ${ringBaseInfo} shadow-sm hover:scale-110 transition-transform focus:outline-none" ${corStyle}></button>
             `;
         });
         selecionarCorHtml += `</div>`;

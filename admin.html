@@ -622,7 +622,7 @@
             // Preenche cores
             const cc = document.getElementById('cores-container');
             cc.innerHTML = '';
-            (p.cores || []).forEach(c => addCor(c.nome, c.classeCss));
+            (p.cores || []).forEach(c => addCor(c.nome, c.hex || c.classeCss || ''));
             if ((p.cores || []).length === 0) addCor();
 
             // Preenche tamanhos
@@ -634,14 +634,55 @@
             document.getElementById('modal-produto').classList.remove('hidden');
         }
 
+        // Converte classe CSS do Tailwind para hex (suporte legado)
+        function cssClassToHex(cssClass) {
+            const map = {
+                'bg-red-500': '#ef4444', 'bg-red-600': '#dc2626', 'bg-red-700': '#b91c1c',
+                'bg-blue-500': '#3b82f6', 'bg-blue-600': '#2563eb', 'bg-blue-700': '#1d4ed8',
+                'bg-green-500': '#22c55e', 'bg-green-600': '#16a34a', 'bg-green-700': '#15803d',
+                'bg-yellow-500': '#eab308', 'bg-yellow-400': '#facc15', 'bg-yellow-600': '#ca8a04',
+                'bg-orange-500': '#f97316', 'bg-orange-600': '#ea580c',
+                'bg-pink-500': '#ec4899', 'bg-pink-600': '#db2777',
+                'bg-purple-500': '#a855f7', 'bg-purple-600': '#9333ea',
+                'bg-gray-500': '#6b7280', 'bg-gray-600': '#4b5563', 'bg-gray-700': '#374151',
+                'bg-gray-800': '#1f2937', 'bg-gray-900': '#111827',
+                'bg-black': '#000000', 'bg-white': '#ffffff',
+                'bg-amber-500': '#f59e0b', 'bg-amber-600': '#d97706',
+                'bg-teal-500': '#14b8a6', 'bg-cyan-500': '#06b6d4',
+                'bg-indigo-500': '#6366f1', 'bg-rose-500': '#f43f5e',
+                'bg-lime-500': '#84cc16', 'bg-emerald-500': '#10b981',
+                'bg-sky-500': '#0ea5e9', 'bg-violet-500': '#8b5cf6',
+                'bg-fuchsia-500': '#d946ef', 'bg-stone-500': '#78716c',
+                'bg-neutral-500': '#737373', 'bg-zinc-500': '#71717a',
+                'bg-slate-500': '#64748b',
+            };
+            return map[cssClass] || '#cccccc';
+        }
+
         function addCor(nome = '', css = '') {
+            // Se receber classe CSS antiga, converte para hex
+            let hexColor = css;
+            if (css && css.startsWith('bg-')) {
+                hexColor = cssClassToHex(css);
+            }
+            if (!hexColor || hexColor === '') hexColor = '#cccccc';
+
             const row = document.createElement('div');
             row.className = 'flex gap-2 items-center';
             row.innerHTML = `
         <input type="text" placeholder="Nome (ex: Vermelha)" value="${nome}" class="cor-nome flex-grow border border-gray-200 rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-brand">
-        <input type="text" placeholder="Classe CSS (ex: bg-red-600)" value="${css}" class="cor-css flex-grow border border-gray-200 rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-brand">
+        <div class="flex items-center gap-2 flex-grow">
+            <input type="color" value="${hexColor}" class="cor-hex w-10 h-10 rounded-lg cursor-pointer border-2 border-gray-200 hover:border-brand transition-colors" title="Clique para escolher a cor" style="padding: 2px;">
+            <span class="cor-hex-label text-xs text-gray-400 font-mono">${hexColor}</span>
+        </div>
         <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm px-1"><i class="fas fa-trash"></i></button>
     `;
+            // Atualiza o label quando a cor muda
+            const colorInput = row.querySelector('.cor-hex');
+            const hexLabel = row.querySelector('.cor-hex-label');
+            colorInput.addEventListener('input', () => {
+                hexLabel.textContent = colorInput.value;
+            });
             document.getElementById('cores-container').appendChild(row);
         }
 
@@ -667,12 +708,13 @@
 
             if (!nome || isNaN(preco)) { erroEl.textContent = 'Nome e Preço são obrigatórios.'; erroEl.classList.remove('hidden'); return; }
 
-            // Monta cores
+            // Monta cores (agora com hex)
             const cores = [];
             document.querySelectorAll('#cores-container > div').forEach(row => {
                 const n = row.querySelector('.cor-nome').value.trim();
-                const c = row.querySelector('.cor-css').value.trim();
-                if (n && c) cores.push({ nome: n, classeCss: c });
+                const hexInput = row.querySelector('.cor-hex');
+                const hexVal = hexInput ? hexInput.value : '';
+                if (n && hexVal) cores.push({ nome: n, hex: hexVal });
             });
 
             // Monta tamanhos

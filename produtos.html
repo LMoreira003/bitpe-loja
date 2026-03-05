@@ -335,8 +335,10 @@
                     <div class="flex flex-wrap gap-3" id="filtro-cores">
             `;
             todasAsCores.forEach(cor => {
+                const corStyle = cor.hex ? `style="background-color: ${cor.hex}"` : '';
+                const corClass = cor.hex ? '' : (cor.classeCss || 'bg-gray-200');
                 html += `
-                    <button onclick="toggleFiltroCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-filtro-cor w-8 h-8 rounded-full ${cor.classeCss} border border-gray-300 focus:outline-none hover:scale-110 transition-transform"></button>
+                    <button onclick="toggleFiltroCor(this, '${cor.nome}')" data-cor="${cor.nome}" title="${cor.nome}" class="btn-filtro-cor w-8 h-8 rounded-full ${corClass} border border-gray-300 focus:outline-none hover:scale-110 transition-transform" ${corStyle}></button>
                 `;
             });
             html += `</div></div>`;
